@@ -1,45 +1,6 @@
-<template>  
-  <div class="dashboard-view">
-    <!-- Hamburger Menu -->
-    <div class="hamburger" @click="toggleSidebar">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>
-
-    <!-- Sidebar -->
-    <aside :class="['sidebar', { 'collapsed': !isSidebarOpen }]">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item active">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item"> 
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item">
-          <i class="icon-map" /> Location
-        </RouterLink>
-        <RouterLink to="/emergency" class="nav-item">
-          <i class="icon-emergency" /> Emergency Charging
-        </RouterLink>
-        <RouterLink to="/track" class="nav-item">
-          <i class="icon-location" /> Track Vehicle
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="dashboard-content">
+<template>
+  <DashboardLayout>
+    <div class="charger-list-content">
       <!-- Header -->
       <div class="dashboard-header">
         <input 
@@ -74,8 +35,8 @@
         </div>
 
         <div class="profile">
-          <span>Ananya Singh</span>
-          <small>Admin</small>
+          <span>{{ currentUserEmail }}</span>
+          <small>User</small>
           <img src="/profile.png" alt="Profile" />
         </div>
       </div>
@@ -128,21 +89,32 @@
           </li>
         </ul>
       </div>
-    </main>
-  </div>
+    </div>
+  </DashboardLayout>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-
-const isSidebarOpen = ref(true)
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 const stations = ref([])
 const loading = ref(true)
 const error = ref(null)
+
+// Pull the logged-in user from the same localStorage slot that LoginView writes.
+// Fail soft to "Account" if anything in the JSON is malformed (e.g. logged-out
+// state, manual tampering).
+const currentUserEmail = computed(() => {
+  try {
+    const raw = localStorage.getItem('user')
+    if (!raw) return 'Account'
+    const parsed = JSON.parse(raw)
+    return parsed?.email || 'Account'
+  } catch {
+    return 'Account'
+  }
+})
 
 const searchQuery = ref('')
 const statusFilter = ref('')
@@ -154,39 +126,8 @@ const fetchStations = async () => {
     loading.value = true
     error.value = null
     
-    const token = localStorage.getItem('authToken')
-    
-    if (!token) {
-      throw new Error('No authentication token found. Please login again.')
-    }
+    const { data: responseData } = await api.get('/stations')
 
-    const response = await fetch('https://zappoint.onrender.com/api/stations', {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    
-    console.log('Response status:', response.status)
-    
-    if (response.status === 401) {
-      throw new Error('Session expired. Please login again.')
-    }
-    
-    if (response.status === 403) {
-      throw new Error('You do not have permission to access this resource.')
-    }
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('API error response:', errorText)
-      throw new Error(`API error: ${response.status} - ${errorText}`)
-    }
-    
-    const responseData = await response.json()
-    console.log('API response data:', responseData)
-    
-    // Handle different response formats
     if (Array.isArray(responseData)) {
       stations.value = responseData
     } else if (Array.isArray(responseData.stations)) {
@@ -196,11 +137,8 @@ const fetchStations = async () => {
     } else {
       throw new Error('Unexpected API response format')
     }
-    
-    console.log('Mapped stations:', stations.value)
   } catch (err) {
-    console.error('Fetch error:', err)
-    error.value = err.message
+    error.value = err?.response?.data?.message || err.message || 'Failed to load stations'
   } finally {
     loading.value = false
   }
@@ -245,8 +183,7 @@ const formatDate = (dateString) => {
       day: 'numeric',
       year: 'numeric'
     })
-  } catch (e) {
-    console.error('Date formatting error:', e)
+  } catch {
     return 'Invalid Date'
   }
 }

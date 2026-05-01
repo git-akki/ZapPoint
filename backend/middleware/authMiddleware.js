@@ -12,32 +12,23 @@ export const authenticate = async (req, res, next) => {
   }
 
   try {
-    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    
-    console.log('Decoded token:', decoded)
 
     // Fetch full user from database using the ID from token
     const user = await User.findById(decoded.id).select('-password')
-    
     if (!user) {
-      return res.status(401).json({ 
+      return res.status(401).json({
         success: false,
-        message: 'User not found' 
+        message: 'User not found',
       })
     }
 
-    console.log('Authenticated user:', user._id, user.email)
-
-    // Set the full user object (with _id) to req.user
     req.user = user
-    
     next()
   } catch (err) {
-    console.error('Token verification error:', err)
-    res.status(401).json({ 
+    res.status(401).json({
       success: false,
-      message: 'Invalid token' 
+      message: 'Invalid token',
     })
   }
 }

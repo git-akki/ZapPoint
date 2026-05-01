@@ -10,7 +10,7 @@
           placeholder="Email"
           class="auth-input"
           required
-          pattern="^[\\w.-]+@[\\w.-]+\\.\\w{2,}$"
+          pattern="^[\w.-]+@[\w.-]+\.\w{2,}$"
           title="Please enter a valid email address"
         />
 
@@ -28,7 +28,9 @@
           </span>
         </div>
 
-        <button type="submit" class="auth-button">Register</button>
+        <button type="submit" class="auth-button" :disabled="submitting">
+          {{ submitting ? 'Registering…' : 'Register' }}
+        </button>
       </form>
       <p class="auth-switch">
         Already have an account?
@@ -41,30 +43,34 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
+import api from '@/lib/api'
 
 const email = ref('')
 const password = ref('')
+const submitting = ref(false)
 const showPassword = ref(false)
 const togglePassword = () => {
   showPassword.value = !showPassword.value
 }
 
-
 const router = useRouter()
 
 const handleRegister = async () => {
+  if (submitting.value) return
+  submitting.value = true
   try {
-    await axios.post('http://localhost:5000/api/auth/register', {
+    await api.post('/auth/register', {
       email: email.value,
       password: password.value,
     })
-    alert('Registration successful!')
+    alert('Registration successful! Check your email for confirmation.')
     router.push('/login')
   } catch (err) {
-    alert('Registration failed!')
-    console.error(err)
+    const msg = (err as any)?.response?.data?.message || 'Registration failed'
+    alert(msg)
+  } finally {
+    submitting.value = false
   }
 }
 </script>

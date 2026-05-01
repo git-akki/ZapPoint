@@ -1,52 +1,27 @@
 <template>
-  <div class="map-view">
-    
-    <div class="hamburger" @click="toggleSidebar">
-      ☰
-    </div>
-
-    
-    <aside class="sidebar" :class="{ show: isSidebarVisible }">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item">
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item active">
-          <i class="icon-home" /> Location
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
-    
+  <DashboardLayout>
     <div id="map" class="map-container"></div>
-  </div>
+  </DashboardLayout>
 </template>
 
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
-const isSidebarVisible = ref(false)
-
-const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
-
+// Escape user-supplied strings before they go into Leaflet popup HTML.
+// Without this, a station named `<img onerror=alert(1)>` would execute when
+// the marker is clicked, since Leaflet renders bindPopup content as raw HTML.
+const escapeHtml = (s) =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
 
 const customIcon = L.icon({
   iconUrl: '/zappoint-marker.png', 
@@ -66,15 +41,7 @@ onMounted(async () => {
   }).addTo(map)
 
   try {
-    const token = localStorage.getItem('authToken')
-    const res = await fetch('https://zappoint.onrender.com/api/stations', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    const responseData = await res.json()
+    const { data: responseData } = await api.get('/stations')
     const stations = Array.isArray(responseData)
       ? responseData
       : responseData?.stations || responseData?.data || []
@@ -90,119 +57,40 @@ onMounted(async () => {
           { icon: customIcon }
         ).addTo(map)
 
+        // All interpolated values are HTML-escaped — see escapeHtml docstring above.
         const popupContent = `
           <div style="min-width: 200px">
-            <b>${station.name}</b><br>
-            Status: ${station.status}<br>
-            Power: ${station.powerOutput} kW<br>
-            Connector: ${station.connectorType}
+            <b>${escapeHtml(station.name)}</b><br>
+            Status: ${escapeHtml(station.status)}<br>
+            Power: ${escapeHtml(station.powerOutput)} kW<br>
+            Connector: ${escapeHtml(station.connectorType)}
           </div>
         `
         marker.bindPopup(popupContent)
       }
     })
   } catch (err) {
-    console.error('Failed to load stations:', err)
+    // Surface to the user via the existing error pattern; previously was a silent log.
+    // Keep console for debugging in dev.
+    if (import.meta.env.DEV) console.error('Failed to load stations:', err)
   }
 })
 </script>
 
 <style scoped>
-.map-view {
-  display: flex;
-  height: 100vh;
-  overflow: hidden;
-}
-
-
-.sidebar {
-  width: 240px;
-  background-color: #1e293b;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease-in-out;
-}
-
-
-.logo {
-  padding-left: 1rem;
-  width: 130px;
-  margin-bottom: 2rem;
-}
-
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  color: white;
-  text-decoration: none;
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.nav-item:hover,
-.nav-item.active {
-  background-color: #334155;
-}
-
-.nav-item i {
-  margin-right: 0.5rem;
-}
-
-
+/* Fill the layout's <main> slot with the map. Negative margin offsets the
+   parent's padding so the map paints edge-to-edge. */
 .map-container {
-  flex: 1;
+  height: calc(100vh - 0rem);
+  width: auto;
+  margin: -2rem;
   z-index: 1;
 }
 
-
-.hamburger {
-  display: none;
-  position: absolute;
-  top: 2rem;
-  left: 1rem;
-  z-index: 20;
-  font-size: 1.5rem;
-  color: white;
-  background: #1e293b;
-  padding: 0.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-/* Responsive behavior */
-@media (max-width: 768px) {
-  .map-view {
-    flex-direction: column;
-  }
-
-  
-  .sidebar {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-    z-index: 10;
-  }
-
-  .sidebar.show {
-    transform: translateX(0);
-  }
-
+@media (max-width: 1024px) {
   .map-container {
-    height: 100vh;
-    width: 100%;
-  }
-
-  .hamburger {
-    display: block;
-    top: 19.4%;
-    left: 0.5%;
+    margin: -1rem;
+    height: calc(100vh - 5rem);
   }
 }
 </style>

@@ -55,9 +55,6 @@ const findNearestStation = async (latitude, longitude, connectorType, powerRequi
 // Request emergency service
 export const requestEmergencyService = async (req, res) => {
   try {
-    console.log('Request body:', req.body)
-    console.log('Request user:', req.user)
-
     const { latitude, longitude, connectorType, powerRequired, contactNumber } = req.body
 
     // Validate required fields
@@ -125,8 +122,6 @@ export const requestEmergencyService = async (req, res) => {
       assignedStation: nearestStation._id,
       status: 'assigned'
     })
-
-    console.log('Emergency request created:', emergencyRequest)
 
     res.status(201).json({
       success: true,
@@ -236,33 +231,52 @@ export const updateEmergencyStatus = async (req, res) => {
     const { requestId } = req.params
     const { status } = req.body
 
-    const emergencyRequest = await EmergencyService.findByIdAndUpdate(
-      requestId,
-      { 
-        status,
-        ...(status === 'completed' && { completedAt: Date.now() })
-      },
-      { new: true }
-    ).populate('assignedStation')
-
-    if (!emergencyRequest) {
+    // Only the user who created the request may change its status. Without
+    // this check, any logged-in user could mutate any other user's request
+    // by guessing the ID — found by code review (P1 #10).
+    const existing = await EmergencyService.findById(requestId)
+    if (!existing) {
       return res.status(404).json({
         success: false,
-        message: 'Emergency request not found'
+        message: 'Emergency request not found',
       })
     }
+    if (existing.userId.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized: not the owner of this request',
+      })
+    }
+
+    // Validate status against the schema's enum so a typo can't poison the
+    // doc. Mongoose would also catch this on save, but failing early here
+    // gives a cleaner 400 instead of a 500.
+    const allowedStatuses = ['pending', 'assigned', 'in-progress', 'completed', 'cancelled']
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be one of: ${allowedStatuses.join(', ')}`,
+      })
+    }
+
+    const emergencyRequest = await EmergencyService.findByIdAndUpdate(
+      requestId,
+      {
+        status,
+        ...(status === 'completed' && { completedAt: Date.now() }),
+      },
+      { new: true },
+    ).populate('assignedStation')
 
     res.status(200).json({
       success: true,
       message: 'Status updated successfully',
-      emergencyRequest
+      emergencyRequest,
     })
   } catch (error) {
-    console.error('Update status error:', error)
     res.status(500).json({
       success: false,
       message: 'Failed to update status',
-      error: error.message
     })
   }
 }

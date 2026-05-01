@@ -1,0 +1,26 @@
+# Dependencies — already gitignored per-folder; this catches root-level too.
+node_modules/
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build output
+dist/
+dist-ssr/
+
+# OS / Editor
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# TS build artifacts
+*.tsbuildinfo

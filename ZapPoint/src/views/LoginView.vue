@@ -26,7 +26,9 @@
           </span>
         </div>
 
-        <button type="submit" class="auth-button">Login</button>
+        <button type="submit" class="auth-button" :disabled="submitting">
+          {{ submitting ? 'Logging in…' : 'Login' }}
+        </button>
       </form>
       <p class="auth-switch">
         Don’t have an account?
@@ -38,11 +40,12 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
+import api from '@/lib/api'
 
 const email = ref('')
 const password = ref('')
+const submitting = ref(false)
 const router = useRouter()
 
 const showPassword = ref(false)
@@ -51,31 +54,28 @@ const togglePassword = () => {
 }
 
 const handleLogin = async () => {
+  if (submitting.value) return
+  submitting.value = true
   try {
-    const response = await axios.post('http://localhost:5000/api/auth/login', {
+    const response = await api.post('/auth/login', {
       email: email.value,
       password: password.value,
     })
-    
-    
-    const token = response.data.user.token;
-    
-    
-    localStorage.setItem('authToken', token);
-    localStorage.setItem('user', JSON.stringify(response.data.user));
-    
-    router.push('/dashboard');
+
+    const token = response.data.user.token
+    localStorage.setItem('authToken', token)
+    localStorage.setItem('user', JSON.stringify(response.data.user))
+
+    router.push('/dashboard')
   } catch (err) {
-    
-    let errorMessage = 'Login failed';
+    let errorMessage = 'Login failed'
     if (err && typeof err === 'object' && 'response' in err) {
-      const response = (err as any).response;
-      errorMessage = response?.data?.message || errorMessage;
-      console.error('Login error:', response);
-    } else {
-      console.error('Login error:', err);
+      const response = (err as any).response
+      errorMessage = response?.data?.message || errorMessage
     }
-    alert(`Error: ${errorMessage}`);
+    alert(`Error: ${errorMessage}`)
+  } finally {
+    submitting.value = false
   }
 }
 </script>

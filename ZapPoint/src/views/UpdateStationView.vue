@@ -1,42 +1,10 @@
-<template>  
-  <div class="dashboard-view">
-    
-    <button class="hamburger" @click="isSidebarOpen = !isSidebarOpen">
-      ☰
-    </button>
+<template>
+  <DashboardLayout>
+    <div class="dashboard-header">
+      <h2>Update Charging Station</h2>
+    </div>
 
-    
-    <aside :class="['sidebar', { 'open': isSidebarOpen }]">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item"> 
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item">
-          <i class="icon-home" /> Location
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item active">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="dashboard-content">
-      <div class="dashboard-header">
-        <h2>Update Charging Station</h2>
-      </div>
-
-      <form @submit.prevent="updateStation" class="station-form">
+    <form @submit.prevent="updateStation" class="station-form">
         <div class="form-group">
           <label>Station ID</label>
           <input v-model="stationId" type="text" placeholder="Enter station ID" required />
@@ -55,19 +23,20 @@
           <input v-model.number="form.powerOutput" type="number" placeholder="e.g., 100" required />
         </div>
 
-        <button type="submit" class="submit-btn">Update Station</button>
+        <button type="submit" class="submit-btn" :disabled="submitting">
+          {{ submitting ? 'Updating…' : 'Update Station' }}
+        </button>
 
         <p v-if="message" class="message">{{ message }}</p>
         <p v-if="error" class="error">{{ error }}</p>
       </form>
-    </main>
-  </div>
+  </DashboardLayout>
 </template>
 
 <script setup>
 import { ref } from 'vue'
-
-const isSidebarOpen = ref(false)
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 const stationId = ref('')
 const form = ref({
@@ -77,38 +46,24 @@ const form = ref({
 
 const message = ref('')
 const error = ref('')
+const submitting = ref(false)
 
 const updateStation = async () => {
+  if (submitting.value) return
+  submitting.value = true
   error.value = ''
   message.value = ''
 
-  const token = localStorage.getItem('authToken')
-  if (!token) {
-    error.value = 'Authentication token missing.'
-    return
-  }
-
   try {
-    const response = await fetch(`https://zappoint.onrender.com/api/stations/${stationId.value}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        status: form.value.status,
-        powerOutput: form.value.powerOutput
-      })
+    await api.put(`/stations/${encodeURIComponent(stationId.value)}`, {
+      status: form.value.status,
+      powerOutput: form.value.powerOutput,
     })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(errorText || 'Update failed')
-    }
-
     message.value = 'Station updated successfully.'
   } catch (err) {
-    error.value = err.message
+    error.value = err?.response?.data?.message || err.message || 'Update failed'
+  } finally {
+    submitting.value = false
   }
 }
 </script>

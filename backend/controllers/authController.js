@@ -9,16 +9,38 @@ const generateToken = (userId) => {
   });
 };
 
+// Server-side password rule: ≥8 chars with at least one letter and one digit.
+// Mirrors the help text shown to the user on the Register form. The frontend
+// previously claimed this rule but never enforced it — a single-character
+// password would happily pass through bcrypt and land in the DB.
+const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+const EMAIL_RULE = /^[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}$/;
+
 // @desc    Register a new user
 // @route   POST /api/auth/register
 // @access  Public
 export const register = async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !EMAIL_RULE.test(email)) {
+    return res.status(400).json({ message: 'Please provide a valid email address' });
+  }
+  if (!password || !PASSWORD_RULE.test(password)) {
+    return res.status(400).json({
+      message: 'Password must be at least 8 characters and contain a letter and a number',
+    });
+  }
+
   try {
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+      // Anti-enumeration: respond with the same generic 200 we send for new
+      // users so an attacker can't probe which emails are registered.
+      // Skipping the email send here is deliberate — we don't want to spam
+      // existing users with duplicate welcome mails.
+      return res.status(200).json({
+        message: 'If this email is new, you will receive a confirmation shortly.',
+      });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -50,10 +72,13 @@ export const register = async (req, res) => {
   </div>
 </body>`;
 
-    await sendEmail(email, 'Welcome to ZapPoint!', htmlContent);
+    // Email send is best-effort — a flaky SMTP must not break registration.
+    sendEmail(email, 'Welcome to ZapPoint!', htmlContent).catch(() => {});
 
+    // Same generic message the dup branch returns. We still issue the token
+    // so the new user can log in immediately; the message stays neutral.
     res.status(201).json({
-      message: 'Registered successfully',
+      message: 'If this email is new, you will receive a confirmation shortly.',
       user: {
         _id: newUser._id,
         email: newUser.email,
@@ -61,7 +86,6 @@ export const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Registration Error:', error.message);
     res.status(500).json({ message: 'Server error' });
   }
 };

@@ -1,42 +1,10 @@
 <template>
-  <div class="dashboard-view">
-    
-    <button class="hamburger" @click="toggleSidebar">
-      ☰
-    </button>
+  <DashboardLayout>
+    <div class="dashboard-header">
+      <h2>Delete Charging Station</h2>
+    </div>
 
-    
-    <aside class="sidebar" :class="{ open: isSidebarOpen }">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item">
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item">
-          <i class="icon-home" /> Location
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item active">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
-    
-    <main class="dashboard-content">
-      <div class="dashboard-header">
-        <h2>Delete Charging Station</h2>
-      </div>
-
-      <form @submit.prevent="deleteStation" class="station-form">
+    <form @submit.prevent="deleteStation" class="station-form">
         <div class="form-group">
           <label>Station ID</label>
           <input
@@ -47,59 +15,44 @@
           />
         </div>
 
-        <button type="submit" class="submit-btn">Delete Station</button>
+        <button type="submit" class="submit-btn" :disabled="submitting">
+          {{ submitting ? 'Deleting…' : 'Delete Station' }}
+        </button>
 
         <p v-if="message" class="message">
           {{ message }}
         </p>
         <p v-if="error" class="error">{{ error }}</p>
       </form>
-    </main>
-  </div>
+  </DashboardLayout>
 </template>
 
 
 <script setup>
 import { ref } from 'vue'
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 const stationId = ref('')
 const message = ref('')
 const error = ref('')
-const isSidebarOpen = ref(false)
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
-
+const submitting = ref(false)
+// Sidebar state now lives inside DashboardLayout.
 
 const deleteStation = async () => {
+  if (submitting.value) return
+  submitting.value = true
   message.value = ''
   error.value = ''
 
-  const token = localStorage.getItem('authToken')
-  if (!token) {
-    error.value = 'Authentication token missing. Please login.'
-    return
-  }
-
   try {
-    const response = await fetch(`https://zappoint.onrender.com/api/stations/${stationId.value}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(errorText || 'Failed to delete station')
-    }
-
+    await api.delete(`/stations/${encodeURIComponent(stationId.value)}`)
     message.value = `✅ Station with ID "${stationId.value}" deleted successfully.`
     stationId.value = ''
   } catch (err) {
-    error.value = err.message || 'An error occurred'
+    error.value = err?.response?.data?.message || err.message || 'Failed to delete station'
+  } finally {
+    submitting.value = false
   }
 }
 </script>

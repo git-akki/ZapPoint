@@ -1,36 +1,5 @@
 <template>
-  <div class="track-view">
-    <div class="hamburger" @click="toggleSidebar">
-      ☰
-    </div>
-
-    <aside class="sidebar" :class="{ show: isSidebarVisible }">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item">
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item">
-          <i class="icon-map" /> Location
-        </RouterLink>
-        <RouterLink to="/emergency" class="nav-item">
-          <i class="icon-emergency" /> Emergency
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
+  <DashboardLayout>
     <div class="main-content">
       <!-- Status Panel -->
       <div class="status-panel">
@@ -125,7 +94,7 @@
       <!-- Map Container -->
       <div id="map" class="map-container"></div>
     </div>
-  </div>
+  </DashboardLayout>
 </template>
 
 <script setup>
@@ -134,11 +103,12 @@ import { useRoute, useRouter } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { Button } from '@/components/ui/button'
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 const route = useRoute()
 const router = useRouter()
 const requestId = ref(route.params.requestId)
-const isSidebarVisible = ref(false)
 const loading = ref(true)
 const error = ref(null)
 const trackingData = ref(null)
@@ -147,10 +117,6 @@ let map = null
 let userMarker = null
 let vehicleMarker = null
 let routeLine = null
-
-const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
 
 const userIcon = L.icon({
   iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
@@ -201,65 +167,54 @@ const fetchTrackingData = async () => {
   error.value = null
 
   try {
-    const token = localStorage.getItem('authToken')
-    const response = await fetch(`http://localhost:5000/api/emergency/${requestId.value}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+    if (!requestId.value) {
+      throw new Error('Missing request ID in URL')
+    }
+    const { data } = await api.get(`/emergency/${encodeURIComponent(requestId.value)}`)
+    trackingData.value = data.emergencyRequest
+    assignedStation.value = data.assignedStation
 
-    const data = await response.json()
+    // Initialize map with markers
+    if (map && trackingData.value?.coordinates) {
+      const { latitude, longitude } = trackingData.value.coordinates
 
-    if (response.ok) {
-      trackingData.value = data.emergencyRequest
-      assignedStation.value = data.assignedStation
+      userMarker = L.marker([latitude, longitude], { icon: userIcon })
+        .addTo(map)
+        .bindPopup('<b>Your Location</b><br>Emergency request location')
 
-      // Initialize map with markers
-      if (map && trackingData.value.coordinates) {
-        const { latitude, longitude } = trackingData.value.coordinates
+      if (assignedStation.value && assignedStation.value.coordinates) {
+        const stationLat = assignedStation.value.coordinates.latitude
+        const stationLng = assignedStation.value.coordinates.longitude
 
-        // Add user marker
-        userMarker = L.marker([latitude, longitude], { icon: userIcon })
+        // Station name is escaped — same XSS surface as MapView popups.
+        const safeName = String(assignedStation.value.name ?? '')
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        vehicleMarker = L.marker([stationLat, stationLng], { icon: vehicleIcon })
           .addTo(map)
-          .bindPopup('<b>Your Location</b><br>Emergency request location')
+          .bindPopup(`<b>${safeName}</b><br>Charging vehicle`)
 
-        // Add vehicle marker if station is assigned
-        if (assignedStation.value && assignedStation.value.coordinates) {
-          const stationLat = assignedStation.value.coordinates.latitude
-          const stationLng = assignedStation.value.coordinates.longitude
+        routeLine = L.polyline([
+          [latitude, longitude],
+          [stationLat, stationLng],
+        ], {
+          color: '#3b82f6',
+          weight: 3,
+          opacity: 0.7,
+          dashArray: '10, 10',
+        }).addTo(map)
 
-          vehicleMarker = L.marker([stationLat, stationLng], { icon: vehicleIcon })
-            .addTo(map)
-            .bindPopup(`<b>${assignedStation.value.name}</b><br>Charging vehicle`)
-
-          // Draw route
-          routeLine = L.polyline([
-            [latitude, longitude],
-            [stationLat, stationLng]
-          ], {
-            color: '#3b82f6',
-            weight: 3,
-            opacity: 0.7,
-            dashArray: '10, 10'
-          }).addTo(map)
-
-          // Fit bounds
-          const bounds = L.latLngBounds([
-            [latitude, longitude],
-            [stationLat, stationLng]
-          ])
-          map.fitBounds(bounds, { padding: [50, 50] })
-        } else {
-          map.setView([latitude, longitude], 13)
-        }
+        const bounds = L.latLngBounds([
+          [latitude, longitude],
+          [stationLat, stationLng],
+        ])
+        map.fitBounds(bounds, { padding: [50, 50] })
+      } else {
+        map.setView([latitude, longitude], 13)
       }
-    } else {
-      error.value = data.message || 'Failed to load tracking data'
     }
   } catch (err) {
-    error.value = 'Failed to connect to server'
-    console.error('Fetch error:', err)
+    error.value = err?.response?.data?.message || err.message || 'Failed to load tracking data'
+    if (import.meta.env.DEV) console.error('Fetch error:', err)
   } finally {
     loading.value = false
   }

@@ -5,7 +5,9 @@ import { computed } from 'vue'
 const route = useRoute()
 
 
-const showHeader = computed(() => ['login', 'register'].includes(route.name))
+// Router uses capitalized route names (`Login`, `Register`); the previous
+// lowercase check meant this header never rendered.
+const showHeader = computed(() => ['Login', 'Register'].includes(String(route.name)))
 </script>
 
 <template>

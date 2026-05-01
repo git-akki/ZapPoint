@@ -1,36 +1,5 @@
 <template>
-  <div class="emergency-view">
-    <div class="hamburger" @click="toggleSidebar">
-      ☰
-    </div>
-
-    <aside class="sidebar" :class="{ show: isSidebarVisible }">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item">
-          <i class="icon-dashboard" /> Dashboard
-        </RouterLink>
-        <RouterLink to="/" class="nav-item">
-          <i class="icon-home" /> Home
-        </RouterLink>
-        <RouterLink to="/map" class="nav-item">
-          <i class="icon-map" /> Location
-        </RouterLink>
-        <RouterLink to="/emergency" class="nav-item active">
-          <i class="icon-emergency" /> Emergency
-        </RouterLink>
-        <RouterLink to="/create" class="nav-item">
-          <i class="icon-create" /> Create Station
-        </RouterLink>
-        <RouterLink to="/update" class="nav-item">
-          <i class="icon-update" /> Update Station
-        </RouterLink>
-        <RouterLink to="/delete" class="nav-item">
-          <i class="icon-delete" /> Delete Station
-        </RouterLink>
-      </nav>
-    </aside>
-
+  <DashboardLayout>
     <div class="main-content">
       <div class="form-container">
         <div class="form-header">
@@ -235,7 +204,7 @@
         </form>
       </div>
     </div>
-  </div>
+  </DashboardLayout>
 </template>
 
 <script setup>
@@ -244,6 +213,8 @@ import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -264,16 +235,11 @@ import {
 } from '@/components/ui/select'
 
 const router = useRouter()
-const isSidebarVisible = ref(false)
 const isSubmitting = ref(false)
 const isGettingLocation = ref(false)
 const userLocation = ref(null)
 const locationError = ref(null)
 const locationMethod = ref('gps')
-
-const toggleSidebar = () => {
-  isSidebarVisible.value = !isSidebarVisible.value
-}
 
 // FIXED: Changed validation to accept both string and number, then coerce to number
 const formSchema = toTypedSchema(
@@ -305,15 +271,12 @@ const handleManualLocationInput = () => {
   const lat = parseFloat(form.values.latitude)
   const lng = parseFloat(form.values.longitude)
   
-  console.log('Manual input - lat:', lat, 'lng:', lng)
-  
   if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
     userLocation.value = {
       latitude: lat,
-      longitude: lng
+      longitude: lng,
     }
     locationError.value = null
-    console.log('Manual location set:', userLocation.value)
   }
 }
 
@@ -336,13 +299,11 @@ const getUserLocation = () => {
         longitude: lng
       }
 
-      console.log('GPS location obtained:', userLocation.value)
       isGettingLocation.value = false
       locationError.value = null
     },
     (error) => {
       isGettingLocation.value = false
-      console.error('Geolocation error:', error)
       switch (error.code) {
         case error.PERMISSION_DENIED:
           locationError.value = 'Location permission denied. Please enable location access or use manual input.'
@@ -366,9 +327,6 @@ const getUserLocation = () => {
 }
 
 const onSubmit = handleSubmit(async (values) => {
-  console.log('Form submitted with values:', values)
-  console.log('User location:', userLocation.value)
-
   if (!userLocation.value) {
     locationError.value = 'Please provide your location using GPS or manual input'
     alert('Please provide your location first')
@@ -393,64 +351,32 @@ const onSubmit = handleSubmit(async (values) => {
   isSubmitting.value = true
 
   try {
-    const token = localStorage.getItem('authToken')
-    
-    if (!token) {
-      alert('Authentication required. Please login again.')
-      router.push('/login')
-      return
-    }
-
     const requestBody = {
       latitude: userLocation.value.latitude,
       longitude: userLocation.value.longitude,
       connectorType: values.connectorType,
       powerRequired: parseInt(values.powerRequired),
-      contactNumber: values.contactNumber
+      contactNumber: values.contactNumber,
     }
 
-    console.log('Sending request:', requestBody)
+    const { data } = await api.post('/emergency/request', requestBody)
 
-    const response = await fetch('http://localhost:5000/api/emergency/request', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(requestBody)
-    })
+    alert('Emergency service requested successfully!')
 
-    console.log('Response status:', response.status)
-
-    const data = await response.json()
-    console.log('Response data:', data)
-
-    if (response.ok) {
-      alert('Emergency service requested successfully!')
-      
-      // FIX: Check for the request ID in the response
-      const requestId = data.emergencyRequest?._id || data.emergencyRequest?.id
-      
-      console.log('Request ID:', requestId)
-      
-      if (requestId) {
-        // Navigate to tracking page with the correct request ID
-        router.push(`/track/${requestId}`)
-      } else {
-        console.error('No request ID in response:', data)
-        alert('Request submitted but tracking unavailable. Missing request ID.')
-      }
+    const requestId = data.emergencyRequest?._id || data.emergencyRequest?.id
+    if (requestId) {
+      router.push(`/track/${requestId}`)
     } else {
-      alert(data.message || 'Failed to request emergency service')
+      alert('Request submitted but tracking unavailable. Missing request ID.')
     }
   } catch (error) {
-    console.error('Emergency request failed:', error)
-    alert(`Error: ${error.message}. Please check console for details.`)
+    const msg = error?.response?.data?.message || error.message || 'Failed to request emergency service'
+    alert(`Error: ${msg}`)
   } finally {
     isSubmitting.value = false
   }
 }, (errors) => {
-  console.error('Form validation errors:', errors)
+  if (import.meta.env.DEV) console.error('Form validation errors:', errors)
   alert('Please fix the form errors before submitting')
 })
 

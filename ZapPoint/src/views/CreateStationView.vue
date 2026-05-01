@@ -1,31 +1,10 @@
+<template>
+  <DashboardLayout>
+    <div class="dashboard-header">
+      <h2>Create New Charging Station</h2>
+    </div>
 
-<template> 
-  <div class="dashboard-view">
-    
-    <button class="hamburger-btn" @click="toggleSidebar">
-      <span :class="{ open: isSidebarOpen }">&#9776;</span>
-    </button>
-
-    
-    <aside :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
-      <img src="/zappoint-logo.png" alt="ZapPoint Logo" class="logo" />
-      <nav>
-        <RouterLink to="/dashboard" class="nav-item"><i class="icon-dashboard" /> Dashboard</RouterLink>
-        <RouterLink to="/" class="nav-item"><i class="icon-home" /> Home</RouterLink>
-        <RouterLink to="/map" class="nav-item"><i class="icon-home" /> Location</RouterLink>
-        <RouterLink to="/create" class="nav-item active"><i class="icon-create" /> Create Station</RouterLink>
-        <RouterLink to="/update" class="nav-item"><i class="icon-update" /> Update Station</RouterLink>
-        <RouterLink to="/delete" class="nav-item"><i class="icon-delete" /> Delete Station</RouterLink>
-      </nav>
-    </aside>
-
-    
-    <main class="dashboard-content">
-      <div class="dashboard-header">
-        <h2>Create New Charging Station</h2>
-      </div>
-
-      <form @submit.prevent="createStation" class="station-form">
+    <form @submit.prevent="createStation" class="station-form">
         
         <div class="form-group">
           <label>Station Name</label>
@@ -34,12 +13,12 @@
 
         <div class="form-group">
           <label>Latitude</label>
-          <input v-model.number="form.latitude" type="number" step="any" placeholder="e.g., 543.6139" required />
+          <input v-model.number="form.latitude" type="number" step="any" min="-90" max="90" placeholder="e.g., 28.6139" required />
         </div>
 
         <div class="form-group">
           <label>Longitude</label>
-          <input v-model.number="form.longitude" type="number" step="any" placeholder="e.g., 654.2090" required />
+          <input v-model.number="form.longitude" type="number" step="any" min="-180" max="180" placeholder="e.g., 77.2090" required />
         </div>
 
         <div class="form-group">
@@ -60,7 +39,9 @@
           <input v-model="form.connectorType" type="text" placeholder="e.g., Type1" required />
         </div>
 
-        <button type="submit" class="submit-btn">Create Station</button>
+        <button type="submit" class="submit-btn" :disabled="submitting">
+          {{ submitting ? 'Creating…' : 'Create Station' }}
+        </button>
 
         <p v-if="message" class="message">
           {{ message }}
@@ -68,22 +49,14 @@
         </p>
         <p v-if="error" class="error">{{ error }}</p>
       </form>
-    </main>
-  </div>
+  </DashboardLayout>
 </template>
 
 
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-const isSidebarOpen = ref(false)
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
+import api from '@/lib/api'
+import DashboardLayout from '@/components/DashboardLayout.vue'
 
 
 const form = ref({
@@ -98,44 +71,27 @@ const form = ref({
 const message = ref('')
 const stationId = ref('')
 const error = ref('')
+const submitting = ref(false)
 
 const createStation = async () => {
+  if (submitting.value) return
+  submitting.value = true
   message.value = ''
   stationId.value = ''
   error.value = ''
 
-  const token = localStorage.getItem('authToken')
-
-  if (!token) {
-    error.value = 'Authentication token missing. Please login.'
-    return
-  }
-
   try {
-    const response = await fetch('https://zappoint.onrender.com/api/stations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    const { data } = await api.post('/stations', {
+      name: form.value.name,
+      location: {
+        latitude: form.value.latitude,
+        longitude: form.value.longitude,
       },
-      body: JSON.stringify({
-        name: form.value.name,
-        location: {
-          latitude: form.value.latitude,
-          longitude: form.value.longitude
-        },
-        status: form.value.status,
-        powerOutput: form.value.powerOutput,
-        connectorType: form.value.connectorType
-      })
+      status: form.value.status,
+      powerOutput: form.value.powerOutput,
+      connectorType: form.value.connectorType,
     })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(errorText || 'Failed to create station')
-    }
-
-    const data = await response.json()
     message.value = `✅ Charging station "${data.name}" created successfully!
     Save this Id for future reference.`
     stationId.value = data._id
@@ -146,10 +102,12 @@ const createStation = async () => {
       longitude: '',
       status: 'Active',
       powerOutput: '',
-      connectorType: ''
+      connectorType: '',
     }
   } catch (err) {
-    error.value = err.message || 'An error occurred'
+    error.value = err?.response?.data?.message || err.message || 'An error occurred'
+  } finally {
+    submitting.value = false
   }
 }
 </script>

@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import { CONNECTOR_TYPES, normalizeConnectorType } from '../utils/connectorTypes.js'
 
 const emergencyServiceSchema = new mongoose.Schema(
   {
@@ -8,28 +9,16 @@ const emergencyServiceSchema = new mongoose.Schema(
       required: true
     },
     coordinates: {
-      latitude: { type: Number, required: true },
-      longitude: { type: Number, required: true }
+      latitude: { type: Number, required: true, min: -90, max: 90 },
+      longitude: { type: Number, required: true, min: -180, max: 180 }
     },
     connectorType: {
       type: String,
       required: true,
-      enum: [
-        'Type 1',
-        'Type 2', 
-        'Type 3',
-        'Type c',
-        'Type1',
-        'type 1',
-        'type 2',
-        'type 3',
-        'type c',
-        'type1',
-        'CHAdeMO',
-        'CCS',
-        'Type',
-        'Tesla'
-      ]
+      // Shares the canonical 5-value enum + normalizer with Station.js so
+      // an EV's connector lookup actually matches against stored stations.
+      enum: CONNECTOR_TYPES,
+      set: normalizeConnectorType,
     },
     powerRequired: {
       type: Number,
