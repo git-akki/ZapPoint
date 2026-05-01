@@ -650,19 +650,24 @@ const onSubmit = handleSubmit(async (values) => {
   box-shadow: 0 0 0 3px var(--zp-accent-soft) !important;
 }
 
-/* Radix Select dropdown — dark theme */
-.select-content,
-:deep([data-radix-popper-content-wrapper]) {
+/* Radix Select dropdown — dark theme.
+   Radix portals the dropdown to <body>, so scoped CSS without :deep()
+   doesn't apply (the portaled DOM lacks our component's scope attribute).
+   Every selector below uses :deep() so it punches through.
+   We use a solid (non-transparent) background — the previous transparent
+   item background let the page bleed through and made the menu unreadable. */
+:deep([data-radix-popper-content-wrapper]),
+:deep(.select-content) {
   width: var(--radix-select-trigger-width);
-  background: rgba(28, 28, 30, 0.95) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+  background: #1c1c1e !important; /* solid; no see-through */
   border: 1px solid var(--zp-line) !important;
   border-radius: var(--zp-radius) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   z-index: 9999 !important;
   overflow: hidden !important;
   color: var(--zp-text) !important;
+  padding: 4px !important;
 }
 
 .select-trigger {
@@ -680,25 +685,36 @@ const onSubmit = handleSubmit(async (values) => {
   gap: 8px !important;
 }
 
-.select-item {
+:deep(.select-item),
+:deep([role="option"]) {
   width: 100% !important;
-  background: transparent !important;
+  background: #1c1c1e !important; /* solid; matches container */
   color: var(--zp-text) !important;
   padding: 8px 12px !important;
   user-select: none !important;
   outline: none !important;
   cursor: pointer !important;
   font-size: 0.9rem !important;
+  border-radius: 6px !important;
 }
 
 :deep(.select-viewport) {
-  background: transparent !important;
-  padding: 5px !important;
+  background: #1c1c1e !important;
+  padding: 4px !important;
 }
 
-.select-item:hover,
-:deep(.select-item[data-highlighted]) {
-  background: var(--zp-bg-3) !important;
+:deep(.select-item:hover),
+:deep([role="option"]:hover),
+:deep(.select-item[data-highlighted]),
+:deep([role="option"][data-highlighted]) {
+  background: #2c2c2e !important; /* one notch lighter on hover */
+  color: var(--zp-text) !important;
+}
+
+:deep(.select-item[data-state="checked"]),
+:deep([role="option"][data-state="checked"]) {
+  background: var(--zp-accent-soft) !important;
+  color: var(--zp-accent) !important;
 }
 
 :deep(.form-item) {
