@@ -316,8 +316,11 @@ const handleSignOut = () => {
   background: var(--zp-bg);
 }
 
-/* ─── HAMBURGER (mobile) ───────────────────────────────── */
+/* ─── HAMBURGER (mobile only) ──────────────────────────── */
 .hamburger {
+  /* Hidden on desktop — only shown via the @media block below.
+     Was previously stomped by a `display: flex` immediately after the
+     `display: none`, which made it render on top of the logo on desktop. */
   display: none;
   position: fixed;
   top: 0.85rem;
@@ -329,7 +332,6 @@ const handleSignOut = () => {
   border-radius: 10px;
   padding: 0.5rem 0.6rem;
   cursor: pointer;
-  display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(20px);
