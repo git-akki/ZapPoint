@@ -162,6 +162,35 @@ const createStation = async () => {
   transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease);
 }
 
+/* Native select: replace the OS chevron with a soft-colored one so the
+   trigger stays cohesive on dark, and force <option> bg so the dropdown
+   doesn't open white. */
+.form-group select {
+  padding-right: 2.25rem;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%23a3a3a3' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.form-group select option {
+  background: var(--zp-bg-2);
+  color: var(--zp-text);
+}
+
+/* Strip the cosmetic spinner buttons from <input type="number">. They render
+   as a 1px-wide light strip on dark and look broken; users can still type or
+   use scroll to change values. */
+.form-group input[type="number"]::-webkit-inner-spin-button,
+.form-group input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.form-group input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .form-group input::placeholder {
   color: var(--zp-text-faint);
 }

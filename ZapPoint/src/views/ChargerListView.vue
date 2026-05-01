@@ -303,19 +303,36 @@ onMounted(fetchStations)
   flex-wrap: wrap;
 }
 
+/* Native <select> on dark mode: kill the system chevron, draw a custom one,
+   and color the OS-rendered <option> dropdown so it doesn't flash white when
+   opened. Browser support for `option { background }` is patchy on macOS but
+   works on Chrome/Edge/Firefox. */
 .filter-select {
-  padding: 0.55rem 0.85rem;
+  padding: 0.55rem 2rem 0.55rem 0.85rem;
   border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius);
-  background: var(--zp-bg-2);
+  background: var(--zp-bg-2)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%23a3a3a3' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>")
+    no-repeat right 0.7rem center;
   color: var(--zp-text-soft);
   font-family: var(--zp-font);
   font-size: 0.82rem;
   cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
   transition: border-color var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease);
 }
 .filter-select:hover {
   border-color: var(--zp-line-strong);
+  color: var(--zp-text);
+}
+.filter-select:focus {
+  outline: none;
+  border-color: var(--zp-accent);
+  box-shadow: 0 0 0 3px var(--zp-accent-soft);
+}
+.filter-select option {
+  background: var(--zp-bg-2);
   color: var(--zp-text);
 }
 

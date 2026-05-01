@@ -271,43 +271,7 @@ onMounted(() => {
   border-color: var(--zp-line);
 }
 
-.sidebar {
-  width: 240px;
-  background-color: #1e293b;
-  color: white;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease-in-out;
-  flex-shrink: 0;
-}
-
-.logo {
-  padding-left: 1rem;
-  width: 130px;
-  margin-bottom: 2rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem;
-  color: white;
-  text-decoration: none;
-  margin-bottom: 0.5rem;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-.nav-item:hover,
-.nav-item.active {
-  background-color: #334155;
-}
-
-.nav-item i {
-  margin-right: 0.5rem;
-}
-
+/* Sidebar markup was removed when the view migrated to DashboardLayout. */
 .main-content {
   flex: 1;
   display: flex;
@@ -514,54 +478,21 @@ onMounted(() => {
   flex: 1;
 }
 
-.hamburger {
-  display: none;
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 1000;
-  font-size: 1.5rem;
-  color: white;
-  background: #1e293b;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
+/* Hamburger / mobile sidebar live in DashboardLayout now — orphan rules
+   removed. The mobile breakpoint just stacks the side panel above the map. */
 @media (max-width: 768px) {
-  .hamburger {
-    display: block;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    transform: translateX(-100%);
-    z-index: 999;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-  }
-
-  .sidebar.show {
-    transform: translateX(0);
-  }
-
   .main-content {
     flex-direction: column;
-    padding-top: 4rem;
   }
-
   .status-panel {
     width: 100%;
     max-height: 50vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--zp-line-soft);
   }
-
   .map-container {
     height: 50vh;
   }
-
   .info-grid {
     grid-template-columns: 1fr;
   }
