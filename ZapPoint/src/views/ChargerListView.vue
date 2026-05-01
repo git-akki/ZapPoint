@@ -82,6 +82,21 @@
                 <span>Power: {{ station.powerOutput }}kW</span>
                 <span>Connector: {{ station.connectorType }}</span>
               </div>
+              <!-- ID + copy chip. Update / Delete views require the
+                   raw _id, so we expose it inline rather than burying it
+                   in DevTools. -->
+              <div class="station-id-row">
+                <code class="station-id">{{ station._id || station.id }}</code>
+                <button
+                  type="button"
+                  class="copy-btn"
+                  :class="{ copied: copiedId === (station._id || station.id) }"
+                  @click="copyId(station._id || station.id)"
+                  :title="copiedId === (station._id || station.id) ? 'Copied!' : 'Copy ID'"
+                >
+                  {{ copiedId === (station._id || station.id) ? '✓ Copied' : '📋 Copy ID' }}
+                </button>
+              </div>
             </div>
             <span :class="station.status === 'Active' ? 'status-active' : 'status-inactive'">
               {{ station.status }}
@@ -101,6 +116,40 @@ import DashboardLayout from '@/components/DashboardLayout.vue'
 const stations = ref([])
 const loading = ref(true)
 const error = ref(null)
+
+// Track which ID was just copied so we can flash a "Copied!" state for ~1.5s.
+// One-at-a-time UX is fine because users typically copy a single ID before
+// pasting it into the Update / Delete form.
+const copiedId = ref('')
+let copyResetTimer = null
+
+const copyId = async (id) => {
+  if (!id) return
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(id)
+    } else {
+      // Fallback for older Safari / non-HTTPS contexts where clipboard
+      // permissions are denied. The textarea trick still works in those cases.
+      const ta = document.createElement('textarea')
+      ta.value = id
+      ta.style.position = 'fixed'
+      ta.style.opacity = '0'
+      document.body.appendChild(ta)
+      ta.focus()
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+    }
+    copiedId.value = id
+    if (copyResetTimer) clearTimeout(copyResetTimer)
+    copyResetTimer = setTimeout(() => { copiedId.value = '' }, 1500)
+  } catch {
+    // Permission denied or no clipboard API — surface via the error banner
+    // so the user isn't left wondering why nothing happened.
+    error.value = 'Could not copy. Long-press the ID to select it manually.'
+  }
+}
 
 // Pull the logged-in user from the same localStorage slot that LoginView writes.
 // Fail soft to "Account" if anything in the JSON is malformed (e.g. logged-out
@@ -380,6 +429,48 @@ onMounted(fetchStations)
   margin-top: 5px;
   font-size: 0.8rem;
   color: #666;
+}
+
+.station-id-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.station-id {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 0.75rem;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  word-break: break-all;
+  user-select: all; /* one-tap select on mobile if copy permission fails */
+}
+
+.copy-btn {
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #334155;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.copy-btn:hover {
+  background: #f3eaff;
+  color: #a855f7;
+  border-color: #d8b4fe;
+}
+
+.copy-btn.copied {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #86efac;
 }
 
 .status-active {
