@@ -114,123 +114,121 @@ const createStation = async () => {
 
 
 <style scoped>
-/* Compact form pattern shared across Create / Update / Delete views.
-   Visual rules: clean white card, single-pixel borders, focus ring uses
-   the brand violet, submit button defaults to dark primary so the page
-   doesn't compete with the colored sidebar accent. */
-.dashboard-header {
-  margin-bottom: 1.5rem;
-}
+/* Apple Settings-pane form pattern.
+ * Single white pill button, hairline inputs on near-black, label above. */
+.dashboard-header { margin-bottom: 1.5rem; }
 
 .dashboard-header h2 {
   font-family: var(--zp-font-display);
   font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-tight);
   margin: 0;
+  color: var(--zp-text);
 }
 
 .station-form {
-  background: var(--zp-bg);
-  padding: 2rem;
-  border: 1px solid var(--zp-border);
+  background: var(--zp-bg-1);
+  padding: 1.75rem;
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius-lg);
   max-width: 540px;
-  box-shadow: var(--zp-shadow-sm);
-  animation: zp-rise 400ms var(--zp-ease-out) both;
+  box-shadow: var(--zp-lift);
+  animation: zp-rise 400ms var(--zp-spring) both;
 }
 
-.form-group {
-  margin-bottom: 1.25rem;
-}
+.form-group { margin-bottom: 1.25rem; }
 
 .form-group label {
   display: block;
   margin-bottom: 0.4rem;
-  font-weight: 600;
-  font-size: 0.85rem;
-  color: var(--zp-text-soft);
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--zp-text-muted);
+  letter-spacing: var(--zp-track-loose);
+  text-transform: uppercase;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
   padding: 0.7rem 0.85rem;
-  border: 1px solid var(--zp-border);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius);
-  background: var(--zp-bg);
-  font-family: var(--zp-font-sans);
-  font-size: 0.95rem;
+  background: var(--zp-bg-2);
+  font-family: var(--zp-font);
+  font-size: 0.92rem;
   color: var(--zp-text);
   transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease);
+}
+
+.form-group input::placeholder {
+  color: var(--zp-text-faint);
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: var(--zp-violet);
-  box-shadow: 0 0 0 3px var(--zp-violet-100);
+  border-color: var(--zp-accent);
+  box-shadow: 0 0 0 3px var(--zp-accent-soft);
 }
 
 .submit-btn {
   margin-top: 0.5rem;
-  background: var(--zp-text);
-  color: var(--zp-text-on-dark);
-  padding: 0.85rem 1.25rem;
+  background: white;
+  color: black;
+  padding: 0.8rem 1.25rem;
   border: 0;
-  border-radius: var(--zp-radius);
+  border-radius: 999px;
   font-weight: 600;
-  font-size: 0.95rem;
-  font-family: var(--zp-font-sans);
+  font-size: 0.92rem;
+  font-family: var(--zp-font);
   cursor: pointer;
   width: 100%;
-  transition: background var(--zp-fast) var(--zp-ease), transform var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
+  transition: background var(--zp-fast) var(--zp-ease), transform var(--zp-fast) var(--zp-spring), opacity var(--zp-fast) var(--zp-ease);
 }
 
-.submit-btn:hover:not(:disabled) {
-  background: #1f1f1f;
-}
-
-.submit-btn:active:not(:disabled) {
-  transform: scale(0.99);
-}
+.submit-btn:hover:not(:disabled) { background: rgba(255, 255, 255, 0.9); }
+.submit-btn:active:not(:disabled) { transform: scale(0.99); }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .message {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: var(--zp-success-bg);
+  background: var(--zp-success-soft);
   color: var(--zp-success);
+  border: 1px solid rgba(48, 209, 88, 0.25);
   border-radius: var(--zp-radius);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 .message-id {
   display: block;
   margin-top: 0.6rem;
-  padding: 0.5rem 0.75rem;
-  background: var(--zp-bg);
+  padding: 0.55rem 0.75rem;
+  background: var(--zp-bg-3);
   color: var(--zp-text);
-  border: 1px solid var(--zp-border);
-  border-radius: var(--zp-radius-sm);
+  border: 1px solid var(--zp-line);
+  border-radius: 8px;
   font-family: var(--zp-font-mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   word-break: break-all;
 }
 
 .error {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
-  background: var(--zp-error-bg);
+  background: var(--zp-error-soft);
   color: var(--zp-error);
+  border: 1px solid rgba(255, 69, 58, 0.3);
   border-radius: var(--zp-radius);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
 }
 
 @media (max-width: 640px) {

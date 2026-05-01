@@ -1,8 +1,8 @@
 <script setup>
-// Landing page — public route. Hero + features + CTA.
-// Visual language: Tesla-style full-bleed hero with big display type,
-// Vercel-style monochrome sections + subtle dotted bg, Next.js-style
-// minimal feature cards with crisp borders.
+// Landing — Apple product-page sensibility:
+//   single column, generous whitespace, hero type that breathes,
+//   one frosted product card centered below the fold,
+//   features as quiet pull-quotes (not boxes), no decorative orbs.
 import { useRouter } from 'vue-router'
 import { computed, onMounted, ref } from 'vue'
 
@@ -10,8 +10,6 @@ const router = useRouter()
 const isAuthed = computed(() => !!localStorage.getItem('authToken'))
 const goCta = () => router.push(isAuthed.value ? '/dashboard' : '/register')
 
-// Animated counter for the hero stat. Pure visual flourish — value is fake
-// "marketing copy" since we don't have a public stations count endpoint.
 const stationCount = ref(0)
 onMounted(() => {
   const target = 1247
@@ -26,26 +24,10 @@ onMounted(() => {
 })
 
 const features = [
-  {
-    title: 'Live charger map',
-    desc: 'Find every active station nearby — power output, connector type, and live status pinned on an interactive map.',
-    icon: '📍',
-  },
-  {
-    title: 'Add what you discover',
-    desc: 'Spotted a new charger? Drop a pin and share it with the community in seconds. No moderation queue.',
-    icon: '➕',
-  },
-  {
-    title: 'Emergency assist',
-    desc: 'Out of battery? Hit the SOS button. We route the nearest compatible charger to your coordinates.',
-    icon: '🚨',
-  },
-  {
-    title: 'Built for India',
-    desc: 'Type1, Type2, CCS, CHAdeMO, and Tesla connectors — covered. Optimized for tier-2 city coverage.',
-    icon: '⚡',
-  },
+  { kicker: 'Find', title: 'Live charger map', desc: 'Every active station, pinned with power output, connector type and current status.' },
+  { kicker: 'Add', title: 'Crowd-sourced coverage', desc: 'Drop a pin in seconds. No moderation queue — the community keeps the map honest.' },
+  { kicker: 'Assist', title: 'Emergency routing', desc: 'Out of charge? One tap routes the nearest compatible station to your coordinates.' },
+  { kicker: 'Open', title: 'Built for India', desc: 'Type1, Type2, CCS, CHAdeMO, Tesla. Optimised for tier-2 city coverage.' },
 ]
 </script>
 
@@ -53,61 +35,55 @@ const features = [
   <div class="landing">
     <!-- HERO -->
     <section class="hero">
-      <div class="hero-bg-orb hero-orb-a" aria-hidden="true"></div>
-      <div class="hero-bg-orb hero-orb-b" aria-hidden="true"></div>
-
       <div class="hero-inner">
-        <div class="eyebrow zp-rise" style="animation-delay: 50ms">
-          <span class="dot"></span>
+        <span class="kicker zp-rise" style="animation-delay: 50ms">
+          <span class="dot" aria-hidden="true"></span>
           {{ stationCount.toLocaleString() }}+ chargers, community-mapped
-        </div>
+        </span>
 
         <h1 class="hero-title zp-rise" style="animation-delay: 150ms">
-          The map of every<br />
-          <span class="hero-title-grad">EV charger</span> in India.
+          Every EV charger,<br />
+          <span class="grad">on one map.</span>
         </h1>
 
         <p class="hero-sub zp-rise" style="animation-delay: 280ms">
-          Find chargers, add new ones, request emergency power.
-          Open, fast, no app install — just a link you can share.
+          Find chargers, add new ones, route emergencies.
+          <br class="break" />
+          Open. Fast. No app to install.
         </p>
 
         <div class="hero-cta zp-rise" style="animation-delay: 400ms">
-          <button class="zp-btn zp-btn-accent hero-cta-primary" @click="goCta">
-            {{ isAuthed ? 'Open Dashboard →' : "Start mapping — it's free" }}
+          <button class="zp-btn zp-btn-primary" @click="goCta">
+            {{ isAuthed ? 'Open Dashboard' : 'Get started' }}
           </button>
-          <RouterLink to="/map" class="zp-btn zp-btn-ghost hero-cta-secondary">
-            View live map
-          </RouterLink>
-        </div>
-
-        <div class="hero-meta zp-rise" style="animation-delay: 550ms">
-          <span><kbd>⌘</kbd> K — quick search · No card required</span>
+          <RouterLink to="/map" class="zp-btn zp-btn-ghost">View live map</RouterLink>
         </div>
       </div>
 
-      <!-- Floating product card preview -->
-      <div class="hero-card zp-rise" style="animation-delay: 700ms">
-        <div class="hero-card-head">
-          <span class="dot dot-live"></span>
-          <span>Connaught Place · Type2 · 50kW</span>
-          <span class="hero-card-status">Active</span>
-        </div>
-        <div class="hero-card-body">
-          <div class="hero-card-row"><span>Distance</span><strong>2.3 km</strong></div>
-          <div class="hero-card-row"><span>ETA</span><strong>5 min</strong></div>
-          <div class="hero-card-row">
-            <span>Status</span><strong style="color: var(--zp-electric)">Available now</strong>
+      <!-- Spotlit preview card. Echoes the dashboard's "live charger" UX. -->
+      <div class="preview zp-rise" style="animation-delay: 700ms">
+        <div class="preview-glow" aria-hidden="true"></div>
+        <div class="preview-card">
+          <div class="preview-head">
+            <span class="dot dot-live" aria-hidden="true"></span>
+            <span class="preview-title">Connaught Place · Type2</span>
+            <span class="preview-pill">Active</span>
           </div>
+          <dl class="preview-body">
+            <div class="row"><dt>Power</dt><dd>50 kW</dd></div>
+            <div class="row"><dt>Distance</dt><dd>2.3 km</dd></div>
+            <div class="row"><dt>ETA</dt><dd>5 min</dd></div>
+            <div class="row"><dt>Status</dt><dd class="ok">Available now</dd></div>
+          </dl>
         </div>
       </div>
     </section>
 
-    <!-- FEATURES -->
-    <section class="features zp-dotted-bg">
+    <!-- FEATURES — Apple-style "Why" section, quiet text grid -->
+    <section class="features">
       <div class="features-inner">
-        <p class="section-eyebrow">What you get</p>
-        <h2 class="section-title">Built like the apps you love.</h2>
+        <p class="section-kicker">Designed for the road ahead.</p>
+        <h2 class="section-title">Quietly powerful.<br />Built for the journey.</h2>
 
         <div class="features-grid">
           <article
@@ -116,7 +92,7 @@ const features = [
             class="feature"
             :style="{ animationDelay: `${i * 80}ms` }"
           >
-            <div class="feature-icon">{{ f.icon }}</div>
+            <span class="feature-kicker">{{ f.kicker }}</span>
             <h3 class="feature-title">{{ f.title }}</h3>
             <p class="feature-desc">{{ f.desc }}</p>
           </article>
@@ -124,31 +100,28 @@ const features = [
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-band">
+    <!-- CTA — single line, no ornament -->
+    <section class="cta">
       <div class="cta-inner">
         <h2 class="cta-title">Power smarter journeys, together.</h2>
-        <p class="cta-sub">
-          Free forever. Sign up and add your first station in under 60 seconds.
-        </p>
-        <button class="zp-btn zp-btn-accent cta-button" @click="goCta">
-          {{ isAuthed ? 'Open Dashboard →' : 'Create your account →' }}
+        <p class="cta-sub">Free, forever. Sign up and add your first station in under a minute.</p>
+        <button class="zp-btn zp-btn-accent cta-btn" @click="goCta">
+          {{ isAuthed ? 'Open Dashboard' : 'Create your account' }}
         </button>
       </div>
     </section>
 
-    <!-- FOOTER -->
     <footer class="footer">
       <div class="footer-inner">
-        <div class="footer-brand">
+        <span class="footer-brand">
           <img src="/zappoint-logo.png" alt="ZapPoint" class="footer-logo" />
-          <span>ZapPoint · Powering smarter journeys</span>
-        </div>
-        <div class="footer-meta">
+          ZapPoint
+        </span>
+        <span class="footer-meta">
           <a href="https://github.com/git-akki/ZapPoint" target="_blank" rel="noopener">GitHub</a>
-          <span class="dot-sep">·</span>
-          <span>Made with ⚡ in India</span>
-        </div>
+          <span class="sep">·</span>
+          <span>Made in India</span>
+        </span>
       </div>
     </footer>
   </div>
@@ -156,215 +129,196 @@ const features = [
 
 <style scoped>
 .landing {
-  font-family: var(--zp-font-sans);
+  font-family: var(--zp-font);
+  background: var(--zp-bg);
+  color: var(--zp-text);
 }
 
-/* ─── HERO ─────────────────────────────────────────── */
+/* ─── HERO ────────────────────────────────────────────────── */
 .hero {
   position: relative;
+  padding: 8rem 2rem 5rem;
+  text-align: center;
   overflow: hidden;
-  background: var(--zp-bg-dark);
-  color: var(--zp-text-on-dark);
-  padding: 7rem 2rem 6rem;
   isolation: isolate;
 }
 
-.hero-bg-orb {
+/* A faint, single-direction radial gloss — Apple's "spotlight" instead of
+   the four-color blob orbs of generic SaaS landings. */
+.hero::before {
+  content: '';
   position: absolute;
-  width: 50vw;
-  height: 50vw;
-  filter: blur(120px);
-  opacity: 0.45;
-  z-index: -1;
-  border-radius: 50%;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 120% 60% at 50% -10%,
+    rgba(10, 132, 255, 0.18),
+    transparent 60%
+  );
   pointer-events: none;
-  animation: zp-float 18s ease-in-out infinite alternate;
-}
-
-.hero-orb-a {
-  background: radial-gradient(circle, #a855f7, transparent 60%);
-  top: -10%;
-  right: -10%;
-}
-
-.hero-orb-b {
-  background: radial-gradient(circle, #06b6d4, transparent 60%);
-  bottom: -20%;
-  left: -10%;
-  animation-direction: alternate-reverse;
-}
-
-@keyframes zp-float {
-  from { transform: translate(0, 0) scale(1); }
-  to { transform: translate(40px, 30px) scale(1.05); }
+  z-index: -1;
 }
 
 .hero-inner {
-  max-width: 1100px;
+  max-width: 980px;
   margin: 0 auto;
-  text-align: center;
-  position: relative;
 }
 
-.eyebrow {
+.kicker {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.9rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
+  gap: 0.45rem;
+  padding: 0.35rem 0.8rem;
+  background: var(--zp-bg-2);
+  border: 1px solid var(--zp-line);
   border-radius: 999px;
   font-size: 0.78rem;
-  color: var(--zp-text-on-dark-soft);
+  color: var(--zp-text-soft);
   font-weight: 500;
+  letter-spacing: var(--zp-track-normal);
 }
 
 .dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--zp-electric);
-  box-shadow: 0 0 10px var(--zp-electric);
-  animation: zp-pulse 1.6s ease-in-out infinite;
+  background: var(--zp-success);
+  box-shadow: 0 0 8px var(--zp-success);
+  animation: zp-blink 1.8s ease-in-out infinite;
 }
 
-@keyframes zp-pulse {
+@keyframes zp-blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.45; }
 }
 
 .hero-title {
   margin: 1.5rem 0 1.25rem;
   font-family: var(--zp-font-display);
-  font-size: clamp(2.5rem, 6vw, 4.75rem);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.035em;
-  color: var(--zp-text-on-dark);
+  font-size: clamp(2.5rem, 6.5vw, 5.5rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: var(--zp-track-display);
+  color: var(--zp-text);
 }
 
-.hero-title-grad {
-  background: var(--zp-gradient-brand);
+.grad {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.45));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
 .hero-sub {
-  max-width: 620px;
-  margin: 0 auto 2rem;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
   font-size: 1.15rem;
-  line-height: 1.6;
-  color: var(--zp-text-on-dark-soft);
+  line-height: 1.55;
+  color: var(--zp-text-soft);
+  letter-spacing: var(--zp-track-normal);
 }
+
+.break { display: none; }
 
 .hero-cta {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   justify-content: center;
   flex-wrap: wrap;
 }
 
-.hero-cta-primary {
-  font-size: 1rem;
-  padding: 0.85rem 1.5rem;
+/* ─── PREVIEW CARD ────────────────────────────────────────── */
+.preview {
+  position: relative;
+  margin: 5rem auto 0;
+  max-width: 480px;
+  padding: 0 1.25rem;
 }
 
-.hero-cta-secondary {
-  background: transparent;
-  color: var(--zp-text-on-dark);
-  border-color: rgba(255, 255, 255, 0.2);
+/* Soft glow behind the card — sells the "spotlit hero device" Apple uses
+   for product photos. Pure CSS, no images. */
+.preview-glow {
+  position: absolute;
+  inset: -20% -10%;
+  background: radial-gradient(circle, rgba(10, 132, 255, 0.22), transparent 60%);
+  filter: blur(40px);
+  z-index: -1;
 }
 
-.hero-cta-secondary:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.hero-meta {
-  margin-top: 2rem;
-  font-size: 0.85rem;
-  color: var(--zp-text-on-dark-soft);
-}
-
-.hero-meta kbd {
-  display: inline-block;
-  padding: 2px 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-  font-family: var(--zp-font-mono);
-  font-size: 0.75rem;
-  margin-right: 4px;
-}
-
-/* Floating preview card */
-.hero-card {
-  margin: 4rem auto 0;
-  max-width: 460px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.preview-card {
+  background: rgba(20, 20, 20, 0.6);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius-lg);
-  padding: 1.25rem;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  padding: 1.1rem 1.25rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--zp-lift);
   text-align: left;
-  font-size: 0.9rem;
 }
 
-.hero-card-head {
+.preview-head {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  font-family: var(--zp-font-mono);
-  font-size: 0.78rem;
-  color: var(--zp-text-on-dark-soft);
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--zp-line);
 }
 
 .dot-live {
-  background: var(--zp-electric);
-  box-shadow: 0 0 12px var(--zp-electric);
+  background: var(--zp-success);
+  box-shadow: 0 0 10px var(--zp-success);
 }
 
-.hero-card-status {
+.preview-title {
+  font-family: var(--zp-font-mono);
+  font-size: 0.78rem;
+  color: var(--zp-text-soft);
+}
+
+.preview-pill {
   margin-left: auto;
   padding: 0.15rem 0.55rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--zp-electric);
+  background: var(--zp-success-soft);
+  color: var(--zp-success);
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 600;
+  letter-spacing: var(--zp-track-loose);
+  text-transform: uppercase;
 }
 
-.hero-card-body {
-  padding-top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.preview-body {
+  margin: 0;
+  padding: 0.85rem 0 0.25rem;
+  display: grid;
+  gap: 0.55rem;
 }
 
-.hero-card-row {
+.row {
   display: flex;
   justify-content: space-between;
+  margin: 0;
+}
+
+.row dt {
+  color: var(--zp-text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.row dd {
+  margin: 0;
+  color: var(--zp-text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
   font-size: 0.9rem;
 }
 
-.hero-card-row span {
-  color: var(--zp-text-on-dark-soft);
-}
+.row .ok { color: var(--zp-success); }
 
-.hero-card-row strong {
-  color: var(--zp-text-on-dark);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-}
-
-/* ─── FEATURES ─────────────────────────────────────── */
+/* ─── FEATURES ────────────────────────────────────────────── */
 .features {
-  padding: 6rem 2rem;
-  background: var(--zp-bg);
+  padding: 8rem 2rem;
+  border-top: 1px solid var(--zp-line-soft);
 }
 
 .features-inner {
@@ -372,122 +326,119 @@ const features = [
   margin: 0 auto;
 }
 
-.section-eyebrow {
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--zp-violet-600);
+.section-kicker {
   margin: 0 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-caps);
+  text-transform: uppercase;
+  color: var(--zp-text-muted);
 }
 
 .section-title {
   font-family: var(--zp-font-display);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: clamp(1.85rem, 4vw, 2.85rem);
   font-weight: 700;
-  letter-spacing: -0.025em;
-  margin: 0 0 3rem;
+  letter-spacing: var(--zp-track-display);
+  line-height: 1.05;
   color: var(--zp-text);
+  margin: 0 0 3.5rem;
   max-width: 700px;
-  line-height: 1.1;
 }
 
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1rem;
+  gap: 1px; /* hairline divider trick: gap fills with bg */
+  background: var(--zp-line-soft);
+  border-top: 1px solid var(--zp-line-soft);
+  border-bottom: 1px solid var(--zp-line-soft);
 }
 
+/* Each feature is a panel; the gap between panels is a 1px hairline.
+   Apple uses this trick on the comparison rows of product pages. */
 .feature {
   background: var(--zp-bg);
-  border: 1px solid var(--zp-border);
-  border-radius: var(--zp-radius-lg);
-  padding: 1.75rem;
-  transition: transform var(--zp-base) var(--zp-ease-out), border-color var(--zp-base) var(--zp-ease), box-shadow var(--zp-base) var(--zp-ease);
-  animation: zp-rise 600ms var(--zp-ease-out) both;
+  padding: 2.5rem 1.75rem 2rem;
+  animation: zp-rise 600ms var(--zp-spring) both;
 }
 
-.feature:hover {
-  transform: translateY(-4px);
-  border-color: var(--zp-violet-300);
-  box-shadow: var(--zp-shadow);
-}
-
-.feature-icon {
-  font-size: 1.6rem;
-  margin-bottom: 1rem;
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--zp-violet-50);
-  border-radius: var(--zp-radius);
+.feature-kicker {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-caps);
+  text-transform: uppercase;
+  color: var(--zp-accent);
+  display: block;
+  margin-bottom: 0.85rem;
 }
 
 .feature-title {
-  font-size: 1.05rem;
+  font-family: var(--zp-font-display);
+  font-size: 1.15rem;
   font-weight: 600;
-  margin: 0 0 0.4rem;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--zp-track-tight);
+  margin: 0 0 0.45rem;
+  color: var(--zp-text);
 }
 
 .feature-desc {
-  font-size: 0.92rem;
+  font-size: 0.93rem;
+  line-height: 1.5;
   color: var(--zp-text-soft);
-  line-height: 1.55;
   margin: 0;
 }
 
-/* ─── CTA BAND ─────────────────────────────────────── */
-.cta-band {
+/* ─── CTA ─────────────────────────────────────────────────── */
+.cta {
   position: relative;
-  padding: 5rem 2rem;
-  background: var(--zp-bg-dark);
-  color: var(--zp-text-on-dark);
+  padding: 7rem 2rem;
+  text-align: center;
   overflow: hidden;
 }
 
-.cta-band::before {
+.cta::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(168, 85, 247, 0.18), transparent 60%);
+  background: radial-gradient(
+    ellipse 80% 50% at 50% 50%,
+    rgba(10, 132, 255, 0.16),
+    transparent 60%
+  );
   pointer-events: none;
 }
 
 .cta-inner {
-  max-width: 700px;
-  margin: 0 auto;
-  text-align: center;
   position: relative;
+  max-width: 640px;
+  margin: 0 auto;
 }
 
 .cta-title {
   font-family: var(--zp-font-display);
-  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-size: clamp(1.85rem, 4vw, 2.85rem);
   font-weight: 700;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--zp-track-display);
+  line-height: 1.08;
   margin: 0 0 1rem;
-  line-height: 1.1;
 }
 
 .cta-sub {
   font-size: 1.05rem;
-  color: var(--zp-text-on-dark-soft);
+  color: var(--zp-text-soft);
   margin: 0 0 2rem;
 }
 
-.cta-button {
-  font-size: 1rem;
+.cta-btn {
+  font-size: 0.95rem;
   padding: 0.85rem 1.5rem;
 }
 
-/* ─── FOOTER ───────────────────────────────────────── */
+/* ─── FOOTER ──────────────────────────────────────────────── */
 .footer {
-  padding: 2rem;
-  border-top: 1px solid var(--zp-border);
-  background: var(--zp-bg);
+  padding: 2.5rem 2rem;
+  border-top: 1px solid var(--zp-line-soft);
 }
 
 .footer-inner {
@@ -499,23 +450,25 @@ const features = [
   flex-wrap: wrap;
   gap: 1rem;
   font-size: 0.85rem;
-  color: var(--zp-text-soft);
+  color: var(--zp-text-muted);
 }
 
 .footer-brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--zp-text-soft);
 }
 
 .footer-logo {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 6px;
 }
 
 .footer-meta {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
@@ -523,22 +476,18 @@ const features = [
 .footer-meta a {
   color: var(--zp-text);
   text-decoration: none;
-  font-weight: 500;
   transition: color var(--zp-fast) var(--zp-ease);
 }
-
 .footer-meta a:hover {
-  color: var(--zp-violet-600);
+  color: var(--zp-accent);
 }
 
-.dot-sep {
-  color: var(--zp-text-muted);
-}
+.sep { color: var(--zp-text-faint); }
 
-@media (max-width: 640px) {
-  .hero { padding: 4rem 1.25rem 3rem; }
-  .features { padding: 4rem 1.25rem; }
-  .cta-band { padding: 4rem 1.25rem; }
-  .feature { padding: 1.5rem; }
+@media (max-width: 720px) {
+  .hero { padding: 5rem 1.25rem 3rem; }
+  .features { padding: 5rem 1.25rem; }
+  .cta { padding: 5rem 1.25rem; }
+  .break { display: inline; }
 }
 </style>

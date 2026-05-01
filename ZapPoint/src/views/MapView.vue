@@ -78,18 +78,63 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Fill the layout's <main> slot with the map. Negative margin offsets the
-   parent's padding so the map paints edge-to-edge. */
+/* Fill the layout's <main> slot with the map; negative margin offsets the
+   parent's padding so the map paints edge-to-edge.
+   Dark Leaflet tone: slight vignette + invert map tiles via filter so
+   OpenStreetMap doesn't blast white into the dark UI. */
 .map-container {
   height: calc(100vh - 0rem);
   width: auto;
-  margin: -2rem;
+  margin: -2rem -2.25rem;
   z-index: 1;
+}
+
+/* Apply Apple-like dark cartography. Hue-rotate keeps roads readable
+   (pure invert turns roads green). The `:deep` selector reaches into
+   Leaflet's runtime-injected tile layer. */
+:deep(.leaflet-tile-pane) {
+  filter: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95) contrast(0.92);
+}
+
+/* Don't invert our own marker icons / popup chrome. */
+:deep(.leaflet-marker-icon),
+:deep(.leaflet-marker-shadow),
+:deep(.leaflet-popup),
+:deep(.leaflet-control) {
+  filter: none;
+}
+
+:deep(.leaflet-popup-content-wrapper),
+:deep(.leaflet-popup-tip) {
+  background: rgba(20, 20, 20, 0.92);
+  color: var(--zp-text);
+  border: 1px solid var(--zp-line);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+:deep(.leaflet-control-attribution) {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--zp-text-muted);
+  font-size: 10px;
+}
+
+:deep(.leaflet-control-attribution a) {
+  color: var(--zp-accent);
+}
+
+:deep(.leaflet-control-zoom a) {
+  background: var(--zp-bg-2);
+  color: var(--zp-text);
+  border-color: var(--zp-line);
+}
+
+:deep(.leaflet-control-zoom a:hover) {
+  background: var(--zp-bg-3);
 }
 
 @media (max-width: 1024px) {
   .map-container {
-    margin: -1rem;
+    margin: -1.25rem;
     height: calc(100vh - 5rem);
   }
 }

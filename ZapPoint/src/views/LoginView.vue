@@ -82,83 +82,78 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* Auth pages share the same dark gradient + centered card. The look is
-   intentionally identical between Login and Register so the user feels
-   continuity when toggling between them. */
+/* Auth pages — Apple "sign in" sheets:
+ *   - black canvas
+ *   - single soft top-radial of accent (no rainbow orbs)
+ *   - frosted card with hairline border
+ *   - inputs are flat with subtle inner highlight
+ *   - primary button is full-width white pill */
 .auth-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem 1.25rem;
-  background: var(--zp-bg-dark);
+  background: var(--zp-bg);
+  color: var(--zp-text);
   position: relative;
   overflow: hidden;
 }
 
-/* Subtle radial gradients echo the landing hero. */
-.auth-page::before,
-.auth-page::after {
+.auth-page::before {
   content: '';
   position: absolute;
-  width: 60vw;
-  height: 60vw;
-  border-radius: 50%;
-  filter: blur(120px);
-  opacity: 0.35;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 50% at 50% -10%,
+    rgba(10, 132, 255, 0.18),
+    transparent 65%
+  );
   pointer-events: none;
-}
-.auth-page::before {
-  background: radial-gradient(circle, #a855f7, transparent 60%);
-  top: -20%;
-  right: -20%;
-}
-.auth-page::after {
-  background: radial-gradient(circle, #06b6d4, transparent 60%);
-  bottom: -20%;
-  left: -20%;
 }
 
 .auth-card {
   position: relative;
   width: 100%;
-  max-width: 420px;
-  padding: 2.5rem 2rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  max-width: 400px;
+  padding: 2.25rem 1.85rem 2rem;
+  background: rgba(20, 20, 20, 0.72);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius-lg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: var(--zp-lift);
   text-align: center;
-  color: var(--zp-text-on-dark);
-  animation: zp-rise 500ms var(--zp-ease-out) both;
+  animation: zp-rise 500ms var(--zp-spring) both;
 }
 
 .logo {
-  width: 56px;
-  height: 56px;
-  margin-bottom: 1rem;
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 1.25rem;
+  border-radius: 10px;
 }
 
 .title {
   font-family: var(--zp-font-display);
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.4rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-tight);
+  margin: 0 0 0.35rem;
 }
 
 .subtitle {
   font-size: 0.9rem;
-  color: var(--zp-text-on-dark-soft);
+  color: var(--zp-text-soft);
   margin: 0 0 1.75rem;
+  letter-spacing: var(--zp-track-normal);
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.6rem;
+  text-align: left;
 }
 
 .password-wrapper {
@@ -174,56 +169,69 @@ const handleLogin = async () => {
 
 .toggle-eye {
   position: absolute;
-  right: 0.85rem;
+  right: 0.6rem;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  font-size: 1.05rem;
+  font-size: 1rem;
   user-select: none;
-  color: var(--zp-text-on-dark-soft);
-  background: none;
+  color: var(--zp-text-muted);
+  background: transparent;
   border: 0;
-  padding: 0;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  transition: color var(--zp-fast) var(--zp-ease), background var(--zp-fast) var(--zp-ease);
+}
+.toggle-eye:hover {
+  color: var(--zp-text);
+  background: var(--zp-bg-3);
 }
 
 .auth-input {
   width: 100%;
-  padding: 0.85rem 1rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.8rem 0.95rem;
+  background: var(--zp-bg-2);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius);
-  font-size: 0.95rem;
-  color: var(--zp-text-on-dark);
-  font-family: var(--zp-font-sans);
-  transition: border-color var(--zp-fast) var(--zp-ease), background var(--zp-fast) var(--zp-ease);
+  font-size: 0.92rem;
+  color: var(--zp-text);
+  font-family: var(--zp-font);
+  letter-spacing: var(--zp-track-normal);
+  transition:
+    border-color var(--zp-fast) var(--zp-ease),
+    box-shadow var(--zp-fast) var(--zp-ease);
 }
 
 .auth-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--zp-text-faint);
 }
 
 .auth-input:focus {
   outline: none;
-  border-color: var(--zp-violet);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--zp-accent);
+  box-shadow: 0 0 0 4px var(--zp-accent-soft);
 }
 
 .auth-button {
-  margin-top: 0.5rem;
-  padding: 0.9rem 1.25rem;
+  margin-top: 0.85rem;
+  padding: 0.85rem 1.25rem;
   background: white;
-  color: var(--zp-bg-dark);
+  color: black;
   border: 0;
-  border-radius: var(--zp-radius);
-  font-size: 0.95rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
   font-weight: 600;
-  font-family: var(--zp-font-sans);
+  font-family: var(--zp-font);
+  letter-spacing: var(--zp-track-normal);
   cursor: pointer;
-  transition: transform var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
+  transition:
+    transform var(--zp-fast) var(--zp-spring),
+    background var(--zp-fast) var(--zp-ease),
+    opacity var(--zp-fast) var(--zp-ease);
 }
 
 .auth-button:hover:not(:disabled) {
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .auth-button:active:not(:disabled) {
@@ -231,25 +239,26 @@ const handleLogin = async () => {
 }
 
 .auth-button:disabled {
-  opacity: 0.55;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
 .auth-switch {
   margin-top: 1.5rem;
   font-size: 0.85rem;
-  color: var(--zp-text-on-dark-soft);
+  color: var(--zp-text-muted);
+  text-align: center;
 }
 
 .auth-switch a {
-  color: var(--zp-text-on-dark);
-  font-weight: 600;
+  color: var(--zp-accent);
+  font-weight: 500;
   text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--zp-fast) var(--zp-ease);
+  margin-left: 0.25rem;
+  transition: opacity var(--zp-fast) var(--zp-ease);
 }
 
 .auth-switch a:hover {
-  border-bottom-color: var(--zp-text-on-dark);
+  opacity: 0.75;
 }
 </style>

@@ -246,8 +246,29 @@ onMounted(() => {
   display: flex;
   height: 100vh;
   overflow: hidden;
-  background: #f8fafc;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--zp-bg);
+  color: var(--zp-text);
+  font-family: var(--zp-font);
+}
+
+/* Apple-dark cartography on Leaflet */
+:deep(.leaflet-tile-pane) {
+  filter: invert(1) hue-rotate(180deg) saturate(0.5) brightness(0.95) contrast(0.92);
+}
+:deep(.leaflet-marker-icon),
+:deep(.leaflet-marker-shadow),
+:deep(.leaflet-popup),
+:deep(.leaflet-control) { filter: none; }
+:deep(.leaflet-popup-content-wrapper),
+:deep(.leaflet-popup-tip) {
+  background: rgba(20, 20, 20, 0.92);
+  color: var(--zp-text);
+  border: 1px solid var(--zp-line);
+}
+:deep(.leaflet-control-zoom a) {
+  background: var(--zp-bg-2);
+  color: var(--zp-text);
+  border-color: var(--zp-line);
 }
 
 .sidebar {
@@ -295,11 +316,12 @@ onMounted(() => {
 
 .status-panel {
   width: 420px;
-  padding: 2rem;
-  background: white;
+  padding: 1.75rem;
+  background: var(--zp-bg-1);
+  border-right: 1px solid var(--zp-line-soft);
   overflow-y: auto;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   flex-shrink: 0;
+  color: var(--zp-text);
 }
 
 .loading-state,
@@ -310,174 +332,182 @@ onMounted(() => {
   justify-content: center;
   padding: 3rem 1rem;
   text-align: center;
+  color: var(--zp-text-muted);
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e2e8f0;
-  border-top: 4px solid #3b82f6;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--zp-line);
+  border-top: 3px solid var(--zp-accent);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
   margin-bottom: 1rem;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.error-state {
-  color: #dc2626;
-}
+.error-state { color: var(--zp-error); }
 
 .retry-btn {
   margin-top: 1rem;
-  background: #3b82f6;
-  color: white;
+  background: white !important;
+  color: black !important;
+  border-radius: 999px !important;
 }
 
 .tracking-info {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
 }
 
 .status-header {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--zp-line);
 }
 
 .status-icon {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  width: 52px;
+  height: 52px;
+  background: var(--zp-accent-soft);
+  color: var(--zp-accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 1.6rem;
+  box-shadow: var(--zp-lift);
 }
 
 .status-header h2 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e293b;
+  font-family: var(--zp-font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-tight);
+  color: var(--zp-text);
   margin: 0;
 }
 
 .request-id {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  color: var(--zp-text-muted);
+  font-family: var(--zp-font-mono);
   margin: 0.25rem 0 0 0;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: 1px;
+  background: var(--zp-line-soft);
+  border: 1px solid var(--zp-line-soft);
+  border-radius: var(--zp-radius);
+  overflow: hidden;
 }
 
 .info-card {
-  background: #f8fafc;
-  padding: 1rem;
-  border-radius: 10px;
+  background: var(--zp-bg-2);
+  padding: 0.85rem 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.3rem;
 }
 
 .info-label {
-  font-size: 0.8rem;
-  color: #64748b;
-  font-weight: 500;
+  font-size: 0.7rem;
+  color: var(--zp-text-muted);
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: var(--zp-track-caps);
 }
 
 .info-value {
-  font-size: 1rem;
-  color: #1e293b;
-  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--zp-text);
+  font-weight: 500;
+  letter-spacing: var(--zp-track-normal);
 }
 
 .timeline {
   display: flex;
   flex-direction: column;
   gap: 0;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 .timeline-item {
   display: flex;
   gap: 1rem;
-  padding-bottom: 2rem;
+  padding-bottom: 1.5rem;
   position: relative;
   opacity: 0.4;
-  transition: opacity 0.3s;
+  transition: opacity var(--zp-base) var(--zp-ease);
 }
 
-.timeline-item.active {
-  opacity: 1;
-}
+.timeline-item.active { opacity: 1; }
 
 .timeline-item:not(:last-child)::before {
   content: '';
   position: absolute;
-  left: 11px;
-  top: 30px;
+  left: 9px;
+  top: 22px;
   width: 2px;
-  height: calc(100% - 10px);
-  background: #e2e8f0;
+  height: calc(100% - 12px);
+  background: var(--zp-line);
 }
 
 .timeline-item.active:not(:last-child)::before {
-  background: #3b82f6;
+  background: var(--zp-accent);
 }
 
 .timeline-dot {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: #e2e8f0;
+  background: var(--zp-bg-3);
+  border: 1px solid var(--zp-line);
   flex-shrink: 0;
   margin-top: 2px;
 }
 
 .timeline-item.active .timeline-dot {
-  background: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+  background: var(--zp-accent);
+  border-color: var(--zp-accent);
+  box-shadow: 0 0 0 3px var(--zp-accent-soft);
 }
 
-.timeline-content {
-  flex: 1;
-}
+.timeline-content { flex: 1; }
 
 .timeline-title {
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0 0 0.25rem 0;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--zp-text);
+  margin: 0 0 0.2rem 0;
+  letter-spacing: var(--zp-track-normal);
 }
 
 .timeline-time {
-  font-size: 0.875rem;
-  color: #64748b;
+  font-size: 0.78rem;
+  color: var(--zp-text-muted);
   margin: 0;
 }
 
 .new-request-btn {
   width: 100%;
-  background: #3b82f6;
-  color: white;
-  padding: 0.875rem;
+  background: white !important;
+  color: black !important;
+  padding: 0.8rem !important;
   font-weight: 600;
-  border-radius: 8px;
+  border-radius: 999px !important;
+  font-size: 0.92rem !important;
 }
 
 .new-request-btn:hover {
-  background: #2563eb;
+  background: rgba(255, 255, 255, 0.9) !important;
 }
 
 .map-container {

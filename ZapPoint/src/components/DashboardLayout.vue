@@ -1,11 +1,12 @@
 <script setup>
-// Shared sidebar + chrome for every authenticated page. Replaces hand-copied
-// sidebars across the dashboard views. Each consumer just slots its main
-// content; the active link is computed from the current route name so
-// pages don't need to pass it.
+// Dashboard chrome — Apple Pro app aesthetic (Logic Pro / Final Cut /
+// Finder dark mode):
+//   - sidebar uses a slightly elevated dark with hairline rule
+//   - nav items are quiet labels with restrained hover, accent strip on
+//     active row (echoes Apple Mail's selection)
+//   - user chip pinned to bottom: avatar (gradient initial) + email
 //
-// Visual style intentionally references Vercel: monochrome canvas, soft
-// borders, single-pixel hover states, user chip pinned to the bottom.
+// All routes/nav targets unchanged.
 import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 
@@ -13,23 +14,19 @@ const isSidebarOpen = ref(false)
 const route = useRoute()
 const router = useRouter()
 
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
+const toggleSidebar = () => { isSidebarOpen.value = !isSidebarOpen.value }
 
 const NAV = [
-  { to: '/dashboard', label: 'Dashboard', icon: '⚡', match: ['ChargerList'] },
-  { to: '/map', label: 'Live map', icon: '📍', match: ['Map'] },
-  { to: '/emergency', label: 'Emergency', icon: '🚨', match: ['Emergency'] },
-  { to: '/create', label: 'Add station', icon: '➕', match: ['CreateStation'] },
-  { to: '/update', label: 'Update station', icon: '✏️', match: ['UpdateStation'] },
-  { to: '/delete', label: 'Delete station', icon: '🗑️', match: ['DeleteStation'] },
+  { to: '/dashboard', label: 'Stations', match: ['ChargerList'], icon: 'list' },
+  { to: '/map', label: 'Live map', match: ['Map'], icon: 'map' },
+  { to: '/emergency', label: 'Emergency', match: ['Emergency'], icon: 'sos' },
+  { to: '/create', label: 'Add station', match: ['CreateStation'], icon: 'plus' },
+  { to: '/update', label: 'Update station', match: ['UpdateStation'], icon: 'pencil' },
+  { to: '/delete', label: 'Delete station', match: ['DeleteStation'], icon: 'trash' },
 ]
 
 const isActive = (item) => item.match.includes(String(route.name))
 
-// Fail soft if the localStorage user blob is malformed (manual tampering,
-// half-cleared session). The chip degrades to "Account" / generic avatar.
 const currentUser = computed(() => {
   try {
     const raw = localStorage.getItem('user')
@@ -51,22 +48,21 @@ const handleSignOut = () => {
 </script>
 
 <template>
-  <div class="dashboard-shell">
-    <button class="hamburger-btn" @click="toggleSidebar" aria-label="Toggle menu">
-      <span class="hamburger-bars" :class="{ open: isSidebarOpen }">&#9776;</span>
+  <div class="shell">
+    <button class="hamburger" @click="toggleSidebar" aria-label="Toggle menu">
+      <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+        <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+      </svg>
     </button>
 
-    <aside :class="['sidebar', { 'sidebar-open': isSidebarOpen }]">
-      <RouterLink to="/" class="sidebar-brand">
+    <aside :class="['sidebar', { open: isSidebarOpen }]">
+      <RouterLink to="/" class="brand">
         <img src="/zappoint-logo.png" alt="ZapPoint" class="brand-logo" />
-        <div class="brand-text">
-          <span class="brand-name">ZapPoint</span>
-          <span class="brand-tag">Powering smarter journeys</span>
-        </div>
+        <span class="brand-name">ZapPoint</span>
       </RouterLink>
 
-      <p class="nav-section-label">Navigation</p>
-      <nav class="nav-list">
+      <p class="section-label">Workspace</p>
+      <nav class="nav">
         <RouterLink
           v-for="item in NAV"
           :key="item.to"
@@ -75,101 +71,114 @@ const handleSignOut = () => {
           :class="{ active: isActive(item) }"
           @click="isSidebarOpen = false"
         >
-          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-icon" aria-hidden="true">
+            <!-- Inline SF-style minimal glyphs. Stroke-only, 1.5px, rounded
+                 caps. Matches the visual weight of Apple's Symbols. -->
+            <svg v-if="item.icon === 'list'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" />
+            </svg>
+            <svg v-else-if="item.icon === 'map'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M8 14s5-4.5 5-8a5 5 0 0 0-10 0c0 3.5 5 8 5 8Z" stroke="currentColor" stroke-width="1.5" fill="none" />
+              <circle cx="8" cy="6" r="1.6" stroke="currentColor" stroke-width="1.3" fill="none" />
+            </svg>
+            <svg v-else-if="item.icon === 'sos'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M8 2v6M8 11v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none" />
+              <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4" fill="none" />
+            </svg>
+            <svg v-else-if="item.icon === 'plus'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none" />
+            </svg>
+            <svg v-else-if="item.icon === 'pencil'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="m3 13 2-.5 7-7-1.5-1.5-7 7L3 13Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" fill="none" />
+            </svg>
+            <svg v-else-if="item.icon === 'trash'" viewBox="0 0 16 16" width="14" height="14">
+              <path d="M3 4h10M6 4V2.5h4V4M5 4l.6 9h4.8L11 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+            </svg>
+          </span>
           <span class="nav-label">{{ item.label }}</span>
-          <span v-if="isActive(item)" class="nav-active-bar" aria-hidden="true"></span>
         </RouterLink>
       </nav>
 
-      <!-- User chip pinned to bottom — the same identity card on every page,
-           replaces the hardcoded "Ananya Singh / Admin" that used to live
-           inside individual views. -->
-      <div class="user-chip">
-        <div class="user-avatar" aria-hidden="true">{{ userInitial }}</div>
-        <div class="user-meta">
-          <span class="user-email" :title="userEmail">{{ userEmail }}</span>
-          <span class="user-role">Member</span>
+      <!-- User chip — pinned bottom -->
+      <div class="chip">
+        <div class="avatar" aria-hidden="true">{{ userInitial }}</div>
+        <div class="meta">
+          <span class="email" :title="userEmail">{{ userEmail }}</span>
+          <span class="role">Member</span>
         </div>
-        <button class="signout-btn" @click="handleSignOut" title="Sign out">
-          ↪
+        <button class="signout" @click="handleSignOut" title="Sign out" aria-label="Sign out">
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <path d="M9 4V3a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-1M7 8h8m0 0-2-2m2 2-2 2"
+              stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+          </svg>
         </button>
       </div>
     </aside>
 
-    <main class="dashboard-content">
+    <main class="main">
       <slot />
     </main>
   </div>
 </template>
 
 <style scoped>
-.dashboard-shell {
+.shell {
   display: flex;
-  font-family: var(--zp-font-sans);
   min-height: 100vh;
-  background: var(--zp-bg-soft);
+  background: var(--zp-bg);
   color: var(--zp-text);
+  font-family: var(--zp-font);
 }
 
-/* ─── SIDEBAR ──────────────────────────────────────── */
+/* ─── SIDEBAR ──────────────────────────────────────────── */
 .sidebar {
-  width: 260px;
+  width: 248px;
   flex-shrink: 0;
-  background: var(--zp-bg);
-  border-right: 1px solid var(--zp-border);
-  padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s var(--zp-ease-out);
+  padding: 1.25rem 0.75rem;
+  background: var(--zp-bg-1);
+  border-right: 1px solid var(--zp-line-soft);
+  transition: transform var(--zp-base) var(--zp-spring);
 }
 
-.sidebar-brand {
-  display: flex;
+.brand {
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
   text-decoration: none;
   color: inherit;
-  padding: 0.5rem 0.5rem 1.5rem;
+  padding: 0.4rem 0.6rem 1.5rem;
+  transition: opacity var(--zp-fast) var(--zp-ease);
 }
+.brand:hover { opacity: 0.75; }
 
 .brand-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
 }
 
 .brand-name {
   font-family: var(--zp-font-display);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.95rem;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--zp-track-tight);
 }
 
-.brand-tag {
-  font-size: 0.7rem;
-  color: var(--zp-text-muted);
-  margin-top: 2px;
-}
-
-.nav-section-label {
-  margin: 0.5rem 0.5rem 0.25rem;
-  font-size: 0.7rem;
+.section-label {
+  margin: 0.25rem 0.6rem 0.4rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--zp-text-muted);
+  letter-spacing: var(--zp-track-caps);
+  color: var(--zp-text-faint);
   font-weight: 600;
 }
 
-.nav-list {
+.nav {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .nav-item {
@@ -177,141 +186,158 @@ const handleSignOut = () => {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.55rem 0.75rem;
+  padding: 0.5rem 0.6rem;
   color: var(--zp-text-soft);
   text-decoration: none;
-  border-radius: var(--zp-radius);
-  font-size: 0.9rem;
+  border-radius: 8px;
+  font-size: 0.86rem;
   font-weight: 500;
-  transition: background var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease);
+  letter-spacing: var(--zp-track-normal);
+  transition:
+    background var(--zp-fast) var(--zp-ease),
+    color var(--zp-fast) var(--zp-ease);
 }
 
 .nav-item:hover {
-  background: var(--zp-bg-mute);
+  background: var(--zp-bg-2);
   color: var(--zp-text);
 }
 
 .nav-item.active {
-  background: var(--zp-violet-50);
-  color: var(--zp-violet-700);
-  font-weight: 600;
+  background: var(--zp-bg-3);
+  color: var(--zp-text);
 }
 
-.nav-icon {
-  width: 1.4rem;
-  text-align: center;
-  font-size: 0.95rem;
-}
-
-.nav-active-bar {
+/* Apple Mail-style accent strip on the active row */
+.nav-item.active::before {
+  content: '';
   position: absolute;
-  left: -1rem;
+  left: -0.75rem;
   top: 50%;
   transform: translateY(-50%);
   height: 60%;
   width: 3px;
-  background: var(--zp-violet-600);
+  background: var(--zp-accent);
   border-radius: 0 3px 3px 0;
 }
 
-/* ─── USER CHIP ────────────────────────────────────── */
-.user-chip {
+.nav-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--zp-text-muted);
+  transition: color var(--zp-fast) var(--zp-ease);
+}
+
+.nav-item.active .nav-icon,
+.nav-item:hover .nav-icon {
+  color: var(--zp-text);
+}
+
+/* ─── USER CHIP ────────────────────────────────────────── */
+.chip {
   margin-top: auto;
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.6rem 0.75rem;
-  border: 1px solid var(--zp-border);
+  padding: 0.5rem 0.55rem;
+  background: var(--zp-bg-2);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius);
-  background: var(--zp-bg);
   transition: border-color var(--zp-fast) var(--zp-ease);
 }
+.chip:hover { border-color: var(--zp-line-strong); }
 
-.user-chip:hover {
-  border-color: var(--zp-text-muted);
-}
-
-.user-avatar {
-  width: 32px;
-  height: 32px;
+.avatar {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: var(--zp-gradient-brand);
+  background: linear-gradient(135deg, var(--zp-accent), #5e5ce6);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.78rem;
   flex-shrink: 0;
+  letter-spacing: 0;
 }
 
-.user-meta {
+.meta {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
 }
 
-.user-email {
+.email {
   font-size: 0.78rem;
   color: var(--zp-text);
-  font-weight: 600;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: var(--zp-track-normal);
 }
 
-.user-role {
-  font-size: 0.65rem;
-  color: var(--zp-text-muted);
+.role {
+  font-size: 0.66rem;
+  color: var(--zp-text-faint);
+  letter-spacing: var(--zp-track-loose);
+  text-transform: uppercase;
   margin-top: 1px;
 }
 
-.signout-btn {
-  background: none;
+.signout {
+  background: transparent;
   border: 0;
   color: var(--zp-text-muted);
   cursor: pointer;
-  font-size: 1rem;
-  padding: 4px 6px;
-  border-radius: 4px;
+  padding: 0.35rem;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: color var(--zp-fast) var(--zp-ease), background var(--zp-fast) var(--zp-ease);
   flex-shrink: 0;
 }
-
-.signout-btn:hover {
+.signout:hover {
   color: var(--zp-error);
-  background: var(--zp-error-bg);
+  background: var(--zp-error-soft);
 }
 
-/* ─── MAIN ─────────────────────────────────────────── */
-.dashboard-content {
+/* ─── MAIN ─────────────────────────────────────────────── */
+.main {
   flex: 1;
-  padding: 2rem;
+  padding: 2rem 2.25rem;
   min-width: 0;
+  background: var(--zp-bg);
 }
 
-/* ─── HAMBURGER ────────────────────────────────────── */
-.hamburger-btn {
+/* ─── HAMBURGER (mobile) ───────────────────────────────── */
+.hamburger {
   display: none;
   position: fixed;
   top: 0.85rem;
   left: 0.85rem;
   z-index: 1100;
-  background: white;
+  background: var(--zp-bg-2);
   color: var(--zp-text);
-  border: 1px solid var(--zp-border);
-  border-radius: var(--zp-radius);
-  font-size: 1.2rem;
-  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--zp-line);
+  border-radius: 10px;
+  padding: 0.5rem 0.6rem;
   cursor: pointer;
-  box-shadow: var(--zp-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
 @media (max-width: 1024px) {
-  .hamburger-btn {
-    display: block;
-  }
+  .hamburger { display: inline-flex; }
 
   .sidebar {
     position: fixed;
@@ -322,15 +348,13 @@ const handleSignOut = () => {
     transform: translateX(-100%);
     padding-top: 4rem;
     overflow-y: auto;
-    box-shadow: var(--zp-shadow-lg);
+    background: var(--zp-bg-1);
   }
 
-  .sidebar.sidebar-open {
-    transform: translateX(0);
-  }
+  .sidebar.open { transform: translateX(0); }
 
-  .dashboard-content {
-    margin-top: 3.5rem;
+  .main {
+    margin-top: 3rem;
     padding: 1.25rem;
     width: 100%;
   }

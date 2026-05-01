@@ -1,87 +1,92 @@
-/* ZapPoint design system
- * Inspired by:
- *   - Tesla: dark canvases, big typographic hero, generous negative space
- *   - Vercel: monochrome base, subtle dotted grids, soft gradient accents
- *   - Next.js: minimalist hierarchy, smooth motion, geometric simplicity
+/* ZapPoint design system — Apple-inspired refined minimalism (dark)
  *
- * Tokens here are global CSS custom properties so component-scoped CSS can
- * pick them up without coupling to Tailwind. Don't hardcode hex/spacing in
- * views — read from these vars so a future palette tweak is one file.
+ * Reference language: Apple Pro apps (Logic Pro, Final Cut), the marketing
+ * site's product pages, and iOS dark mode. Discipline:
+ *   - Pure black canvas, neutral-gray hierarchy. No purple gradients.
+ *   - One electric-blue accent (Apple's iOS dark accent, #0a84ff). Used
+ *     sparingly: focus rings, primary actions, the "live" indicator.
+ *   - SF Pro via system-ui — falls through to Inter Tight as a graceful
+ *     proxy if the user's OS doesn't ship SF (Linux/older Windows).
+ *   - Hairline borders: 1px at low opacity. No drop shadows on dark surfaces;
+ *     elevation comes from translucency + subtle inner light.
+ *   - Spring-physics motion using a single canonical easing curve.
+ *   - Generous space; nothing yells.
  */
 
 :root {
-  /* Brand */
-  --zp-violet: #a855f7;
-  --zp-violet-50: #f5f3ff;
-  --zp-violet-100: #ede9fe;
-  --zp-violet-300: #d8b4fe;
-  --zp-violet-500: #a855f7;
-  --zp-violet-600: #9333ea;
-  --zp-violet-700: #7e22ce;
+  color-scheme: dark;
 
-  --zp-electric: #10b981;     /* EV-charge green accent */
-  --zp-spark: #fb923c;        /* energy orange for CTAs */
-  --zp-cyan: #06b6d4;
+  /* Surfaces — graduated near-black from deepest canvas to top sheet */
+  --zp-bg: #000000;
+  --zp-bg-1: #0a0a0a;     /* mostly-flat panels */
+  --zp-bg-2: #141414;     /* cards, inputs */
+  --zp-bg-3: #1c1c1e;     /* hover state on cards */
+  --zp-bg-4: #2c2c2e;     /* active state, code chips */
 
-  /* Surfaces */
-  --zp-bg: #ffffff;
-  --zp-bg-soft: #f9fafb;
-  --zp-bg-mute: #f3f4f6;
-  --zp-bg-dark: #0a0a0a;
-  --zp-bg-dark-soft: #111111;
-  --zp-bg-dark-mute: #1a1a1a;
+  /* Hairlines — semi-transparent so they hold up over varied bg */
+  --zp-line: rgba(255, 255, 255, 0.08);
+  --zp-line-soft: rgba(255, 255, 255, 0.04);
+  --zp-line-strong: rgba(255, 255, 255, 0.14);
 
-  /* Borders */
-  --zp-border: #e5e7eb;
-  --zp-border-soft: #f1f5f9;
-  --zp-border-dark: #262626;
+  /* Text — neutral whites, strict hierarchy */
+  --zp-text: rgba(255, 255, 255, 0.92);
+  --zp-text-soft: rgba(255, 255, 255, 0.66);
+  --zp-text-muted: rgba(255, 255, 255, 0.46);
+  --zp-text-faint: rgba(255, 255, 255, 0.32);
 
-  /* Text */
-  --zp-text: #0a0a0a;
-  --zp-text-soft: #525252;
-  --zp-text-muted: #737373;
-  --zp-text-on-dark: #fafafa;
-  --zp-text-on-dark-soft: #a3a3a3;
+  /* Accent — single electric-blue (matches iOS dark mode accent) */
+  --zp-accent: #0a84ff;
+  --zp-accent-soft: rgba(10, 132, 255, 0.16);
+  --zp-accent-glow: rgba(10, 132, 255, 0.3);
 
-  /* Status */
-  --zp-success: #16a34a;
-  --zp-success-bg: #dcfce7;
-  --zp-warn: #d97706;
-  --zp-warn-bg: #fef3c7;
-  --zp-error: #dc2626;
-  --zp-error-bg: #fee2e2;
+  /* Status — desaturated to match Apple's restrained palette */
+  --zp-success: #30d158;
+  --zp-success-soft: rgba(48, 209, 88, 0.14);
+  --zp-warn: #ff9f0a;
+  --zp-warn-soft: rgba(255, 159, 10, 0.14);
+  --zp-error: #ff453a;
+  --zp-error-soft: rgba(255, 69, 58, 0.14);
 
-  /* Typography */
-  --zp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --zp-font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --zp-font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+  /* Typography
+     Apple ships SF Pro automatically via `system-ui` on macOS/iOS. On
+     other platforms the stack falls through to Inter Tight (closest
+     proxy). Keep weight range narrow — SF reads best 400/500/600/700. */
+  --zp-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display',
+    'Inter Tight', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --zp-font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display',
+    'Inter Tight', 'Inter', system-ui, sans-serif;
+  --zp-font-mono: ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo, monospace;
 
-  /* Motion */
+  /* Letter-spacing tiers (Apple uses negative tracking on display sizes,
+     positive on small caps/labels). */
+  --zp-track-display: -0.04em;
+  --zp-track-tight: -0.02em;
+  --zp-track-normal: -0.005em;
+  --zp-track-loose: 0.04em;
+  --zp-track-caps: 0.08em;
+
+  /* Motion — single canonical spring curve plus a fast/base/slow trio.
+     Keep all transitions on this so the app feels composed, not jittery. */
+  --zp-spring: cubic-bezier(0.16, 1, 0.3, 1);
   --zp-ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --zp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --zp-fast: 150ms;
-  --zp-base: 250ms;
-  --zp-slow: 400ms;
+  --zp-fast: 160ms;
+  --zp-base: 280ms;
+  --zp-slow: 480ms;
 
-  /* Radii */
-  --zp-radius-sm: 6px;
-  --zp-radius: 10px;
-  --zp-radius-lg: 16px;
-  --zp-radius-xl: 24px;
+  /* Radii — Apple favors continuous (squircle) corners; we approximate
+     with slightly larger radii than typical Material UIs. */
+  --zp-radius-sm: 8px;
+  --zp-radius: 12px;
+  --zp-radius-lg: 18px;
+  --zp-radius-xl: 28px;
 
-  /* Shadows */
-  --zp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --zp-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  --zp-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
-  --zp-shadow-glow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 8px 24px rgba(168, 85, 247, 0.18);
-
-  /* Gradient set used across hero + accents. Keep names semantic. */
-  --zp-gradient-brand: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #fb923c 100%);
-  --zp-gradient-electric: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-  --zp-gradient-night: radial-gradient(ellipse at top, #1f1f3a 0%, #0a0a0a 60%);
+  /* Layered "lift" — instead of drop shadows, apply a subtle inner
+     highlight + slightly lighter background. Reads more refined on dark. */
+  --zp-lift: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --zp-lift-soft: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
-/* Global reset/baseline. Scoped Vue components extend these. */
+/* Global reset */
 *,
 *::before,
 *::after {
@@ -92,106 +97,124 @@ html,
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--zp-font-sans);
-  font-size: 16px;
+  font-family: var(--zp-font);
+  font-size: 15px;
   line-height: 1.5;
+  letter-spacing: var(--zp-track-normal);
   color: var(--zp-text);
   background: var(--zp-bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv11', 'ss01', 'ss03'; /* SF stylistic alternates */
 }
 
-/* Vercel-style dotted grid background for accent panels.
-   Apply with `class="zp-dotted-bg"`. */
-.zp-dotted-bg {
-  background-image: radial-gradient(circle, var(--zp-border) 1px, transparent 1px);
-  background-size: 24px 24px;
-  background-position: 0 0;
+/* Selection — Apple uses tinted accent for selection */
+::selection {
+  background: var(--zp-accent-soft);
+  color: var(--zp-text);
 }
 
-.zp-dotted-bg-dark {
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
+/* Scrollbars — minimal, dark, only on hover (macOS-style) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.16);
+  background-clip: padding-box;
 }
 
-/* Reusable button utilities. Use sparingly — most buttons should be styled
-   in their parent component, but these keep CTA consistency. */
+/* Focus — single, crisp ring. Used by buttons, inputs, links. */
+:focus-visible {
+  outline: 2px solid var(--zp-accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ─── Reusable primitives ─────────────────────────────────────────────── */
+
 .zp-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  gap: 0.45rem;
+  padding: 0.7rem 1.15rem;
   border: 1px solid transparent;
-  border-radius: var(--zp-radius);
-  font-family: var(--zp-font-sans);
-  font-size: 0.95rem;
+  border-radius: 999px; /* Apple's "pill" shape on prominent CTAs */
+  font-family: var(--zp-font);
+  font-size: 0.9rem;
   font-weight: 500;
+  letter-spacing: var(--zp-track-normal);
   cursor: pointer;
-  transition:
-    transform var(--zp-fast) var(--zp-ease),
-    background var(--zp-fast) var(--zp-ease),
-    box-shadow var(--zp-fast) var(--zp-ease),
-    border-color var(--zp-fast) var(--zp-ease);
   text-decoration: none;
   user-select: none;
+  transition:
+    transform var(--zp-fast) var(--zp-spring),
+    background var(--zp-fast) var(--zp-ease),
+    border-color var(--zp-fast) var(--zp-ease),
+    color var(--zp-fast) var(--zp-ease);
 }
 
 .zp-btn:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 
 .zp-btn-primary {
-  background: var(--zp-text);
-  color: var(--zp-text-on-dark);
+  background: white;
+  color: black;
 }
-
 .zp-btn-primary:hover {
-  background: #1f1f1f;
-  box-shadow: var(--zp-shadow);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .zp-btn-accent {
-  background: var(--zp-gradient-brand);
+  background: var(--zp-accent);
   color: white;
-  box-shadow: var(--zp-shadow);
+  box-shadow: 0 0 0 0 var(--zp-accent-glow);
 }
-
 .zp-btn-accent:hover {
-  box-shadow: var(--zp-shadow-glow);
+  background: #1a8cff;
+  box-shadow: 0 0 0 5px var(--zp-accent-soft);
 }
 
 .zp-btn-ghost {
   background: transparent;
   color: var(--zp-text);
-  border-color: var(--zp-border);
+  border-color: var(--zp-line);
 }
-
 .zp-btn-ghost:hover {
-  background: var(--zp-bg-mute);
-  border-color: var(--zp-text-muted);
+  background: var(--zp-bg-2);
+  border-color: var(--zp-line-strong);
 }
 
-/* Card primitive. */
+/* Card primitive */
 .zp-card {
-  background: var(--zp-bg);
-  border: 1px solid var(--zp-border);
+  background: var(--zp-bg-2);
+  border: 1px solid var(--zp-line);
   border-radius: var(--zp-radius-lg);
   padding: 1.5rem;
-  transition: border-color var(--zp-base) var(--zp-ease), transform var(--zp-base) var(--zp-ease);
+  box-shadow: var(--zp-lift);
+  transition: border-color var(--zp-base) var(--zp-ease);
 }
-
 .zp-card:hover {
-  border-color: var(--zp-text-muted);
+  border-color: var(--zp-line-strong);
 }
 
-/* Reveal-on-mount keyframe. Pair with `style="animation-delay: ..."` on
-   children for cascading entrance. */
+/* Reveal-on-mount keyframe */
 @keyframes zp-rise {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -200,10 +223,10 @@ body {
 }
 
 .zp-rise {
-  animation: zp-rise 600ms var(--zp-ease-out) both;
+  animation: zp-rise 600ms var(--zp-spring) both;
 }
 
-/* Vue route transitions. Used in App.vue's <transition name="zp-fade">. */
+/* Vue route transitions — mounted in App.vue */
 .zp-fade-enter-active,
 .zp-fade-leave-active {
   transition: opacity var(--zp-base) var(--zp-ease);
@@ -213,7 +236,7 @@ body {
   opacity: 0;
 }
 
-/* Reduce motion preference — respect users who set it. */
+/* Honor users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

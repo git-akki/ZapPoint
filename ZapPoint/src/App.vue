@@ -1,11 +1,8 @@
 <script setup>
-// App shell. Owns:
-//  - the slim landing/auth header (only shown on Home, Login, Register)
-//  - global route transitions (`zp-fade` defined in theme.css)
-//
-// Authenticated pages own their full chrome via DashboardLayout, so we
-// suppress the public header for any route that isn't part of the
-// landing/auth flow.
+// App shell. The public header (Home/Login/Register) borrows from Apple's
+// frosted top-nav: minimal links, low-weight type, blurred backdrop. The
+// dashboard owns its own chrome via DashboardLayout, so the public header
+// is suppressed there.
 import { RouterView, useRoute, RouterLink } from 'vue-router'
 import { computed } from 'vue'
 
@@ -19,17 +16,18 @@ const isAuthed = computed(() => !!localStorage.getItem('authToken'))
 
 <template>
   <div class="app-wrapper">
-    <header v-if="showPublicHeader" class="zp-header" :class="{ 'zp-header-tight': isAuthRoute }">
+    <header v-if="showPublicHeader" class="zp-header" :class="{ tight: isAuthRoute }">
       <RouterLink to="/" class="brand">
         <img src="/zappoint-logo.png" alt="ZapPoint" class="brand-logo" />
         <span class="brand-name">ZapPoint</span>
       </RouterLink>
-      <nav class="zp-header-nav">
+
+      <nav class="zp-nav">
         <template v-if="!isAuthed">
-          <RouterLink to="/login" class="nav-link">Login</RouterLink>
-          <RouterLink to="/register" class="nav-link nav-link-cta">Get started</RouterLink>
+          <RouterLink to="/login" class="link">Sign in</RouterLink>
+          <RouterLink to="/register" class="link link-primary">Get started</RouterLink>
         </template>
-        <RouterLink v-else to="/dashboard" class="nav-link nav-link-cta">Dashboard →</RouterLink>
+        <RouterLink v-else to="/dashboard" class="link link-primary">Dashboard</RouterLink>
       </nav>
     </header>
 
@@ -57,83 +55,80 @@ const isAuthed = computed(() => !!localStorage.getItem('authToken'))
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: saturate(180%) blur(12px);
-  -webkit-backdrop-filter: saturate(180%) blur(12px);
-  border-bottom: 1px solid var(--zp-border-soft);
+  padding: 1rem 1.5rem;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--zp-line-soft);
 }
 
-/* Auth pages already center a card on a gradient — keep the header transparent
-   so the gradient bleeds through. */
-.zp-header-tight {
+/* Auth pages keep the chrome transparent so the gradient bleeds through */
+.zp-header.tight {
   background: transparent;
   backdrop-filter: none;
-  border-bottom: none;
+  border-bottom: 0;
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
   text-decoration: none;
   color: var(--zp-text);
+  transition: opacity var(--zp-fast) var(--zp-ease);
+}
+.brand:hover {
+  opacity: 0.7;
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
 }
 
 .brand-name {
   font-family: var(--zp-font-display);
-  font-weight: 700;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: var(--zp-track-tight);
 }
 
-.zp-header-nav {
+.zp-nav {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
 
-.nav-link {
-  padding: 0.5rem 1rem;
-  border-radius: var(--zp-radius);
+.link {
+  padding: 0.5rem 0.95rem;
+  border-radius: 999px;
   color: var(--zp-text-soft);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: background var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease);
+  transition: color var(--zp-fast) var(--zp-ease), background var(--zp-fast) var(--zp-ease);
 }
-
-.nav-link:hover {
+.link:hover {
   color: var(--zp-text);
-  background: var(--zp-bg-mute);
+  background: var(--zp-bg-2);
 }
 
-.nav-link-cta {
-  background: var(--zp-text);
-  color: var(--zp-text-on-dark);
+.link-primary {
+  background: white;
+  color: black;
 }
-
-.nav-link-cta:hover {
-  background: #1f1f1f;
-  color: var(--zp-text-on-dark);
+.link-primary:hover {
+  background: rgba(255, 255, 255, 0.88);
+  color: black;
 }
 
 .app-main {
-  min-height: calc(100vh - 5rem);
+  min-height: calc(100vh - 4rem);
 }
 
 @media (max-width: 640px) {
-  .zp-header {
-    padding: 0.75rem 1rem;
-  }
-  .brand-name {
-    display: none;
-  }
+  .zp-header { padding: 0.85rem 1.1rem; }
+  .brand-name { display: none; }
 }
 </style>

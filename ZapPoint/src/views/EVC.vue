@@ -391,8 +391,9 @@ const onSubmit = handleSubmit(async (values) => {
 .emergency-view {
   display: flex;
   min-height: 100vh;
-  background: #f8fafc;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--zp-bg);
+  color: var(--zp-text);
+  font-family: var(--zp-font);
 }
 
 .sidebar {
@@ -443,11 +444,12 @@ const onSubmit = handleSubmit(async (values) => {
 
 .form-container {
   width: 100%;
-  max-width: 550px;
-  padding: 2.5rem;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+  max-width: 560px;
+  padding: 2rem;
+  background: var(--zp-bg-1);
+  border: 1px solid var(--zp-line);
+  border-radius: var(--zp-radius-lg);
+  box-shadow: var(--zp-lift);
 }
 
 .form-header {
@@ -456,15 +458,17 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 0.5rem;
+  font-family: var(--zp-font-display);
+  font-size: 1.65rem;
+  font-weight: 600;
+  letter-spacing: var(--zp-track-tight);
+  color: var(--zp-text);
+  margin-bottom: 0.4rem;
 }
 
 .subtitle {
-  color: #64748b;
-  font-size: 1rem;
+  color: var(--zp-text-muted);
+  font-size: 0.92rem;
 }
 
 .emergency-form {
@@ -480,115 +484,119 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .section-title {
-  font-size: 1.1rem;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: #334155;
+  letter-spacing: var(--zp-track-caps);
+  text-transform: uppercase;
+  color: var(--zp-text-muted);
   margin: 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--zp-line);
 }
 
 .location-tabs {
   display: flex;
-  gap: 0.5rem;
-  background: #f1f5f9;
+  gap: 0.25rem;
+  background: var(--zp-bg-2);
   padding: 0.25rem;
-  border-radius: 10px;
+  border-radius: var(--zp-radius);
+  border: 1px solid var(--zp-line);
 }
 
 .tab-btn {
   flex: 1;
-  padding: 0.625rem;
+  padding: 0.55rem;
   background: transparent;
-  border: none;
+  border: 0;
   border-radius: 8px;
   font-weight: 500;
-  color: #64748b;
+  color: var(--zp-text-muted);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.95rem;
+  transition: background var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease);
+  font-size: 0.88rem;
+  font-family: var(--zp-font);
 }
 
 .tab-btn.active {
-  background: white;
-  color: #1e293b;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: var(--zp-bg-3);
+  color: var(--zp-text);
 }
 
 .location-display {
-  background: #f8fafc;
-  border: 2px dashed #cbd5e1;
-  border-radius: 10px;
-  padding: 1.25rem;
-  min-height: 100px;
+  background: var(--zp-bg-2);
+  border: 1px dashed var(--zp-line-strong);
+  border-radius: var(--zp-radius);
+  padding: 1.1rem;
+  min-height: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.location-info {
-  width: 100%;
-}
+.location-info { width: 100%; }
 
 .location-item {
   display: flex;
   justify-content: space-between;
-  padding: 0.5rem 0;
+  padding: 0.4rem 0;
 }
 
 .location-label {
-  font-weight: 600;
-  color: #475569;
-  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--zp-text-muted);
+  font-size: 0.88rem;
 }
 
 .location-value {
-  color: #1e293b;
-  font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
+  color: var(--zp-text);
+  font-family: var(--zp-font-mono);
+  font-size: 0.88rem;
   font-weight: 500;
 }
 
 .location-placeholder {
   text-align: center;
-  color: #94a3b8;
-  font-size: 0.95rem;
+  color: var(--zp-text-faint);
+  font-size: 0.9rem;
 }
 
 .location-btn {
   width: 100%;
-  background: #8b5cf6;
+  background: var(--zp-accent);
   color: white;
-  padding: 0.875rem;
-  font-weight: 600;
-  border-radius: 10px;
-  transition: background 0.2s;
-  font-size: 1rem;
+  padding: 0.7rem;
+  font-weight: 500;
+  border-radius: 999px;
+  transition: background var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
+  font-size: 0.9rem;
+  border: 0;
+  font-family: var(--zp-font);
+  cursor: pointer;
 }
 
 .location-btn:hover:not(:disabled) {
-  background: #7c3aed;
+  background: #1a8cff;
 }
 
 .location-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.55;
   cursor: not-allowed;
 }
 
 .error-text {
-  color: #dc2626;
-  font-size: 0.9rem;
+  color: var(--zp-error);
+  font-size: 0.86rem;
   line-height: 1.5;
-  padding: 0.75rem;
-  background: #fee2e2;
-  border-radius: 8px;
-  border-left: 3px solid #dc2626;
+  padding: 0.7rem 0.85rem;
+  background: var(--zp-error-soft);
+  border-radius: var(--zp-radius);
+  border: 1px solid rgba(255, 69, 58, 0.25);
 }
 
 .error-hint {
   display: block;
-  margin-top: 0.5rem;
-  color: #f59e0b;
+  margin-top: 0.45rem;
+  color: var(--zp-warn);
   font-weight: 500;
 }
 
@@ -605,94 +613,92 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .help-text {
-  font-size: 0.875rem;
-  color: #64748b;
-  font-style: italic;
+  font-size: 0.85rem;
+  color: var(--zp-text-muted);
   text-align: center;
 }
 
 .form-description {
-  font-size: 0.85rem;
-  color: #64748b;
+  font-size: 0.82rem;
+  color: var(--zp-text-muted);
   margin-top: 0.25rem;
 }
 
-/* Fixed Input Sizing */
+/* Inputs — Apple form-row aesthetic on dark */
 .coordinate-input,
 .phone-input,
 :deep(input[type="text"]),
 :deep(input[type="tel"]),
 :deep(input[type="number"]) {
   width: 100% !important;
-  height: 44px !important;
-  padding: 0.75rem !important;
-  font-size: 0.95rem !important;
-  border-radius: 8px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: white !important;
-  transition: all 0.2s !important;
+  height: 42px !important;
+  padding: 0.65rem 0.85rem !important;
+  font-size: 0.92rem !important;
+  font-family: var(--zp-font) !important;
+  border-radius: var(--zp-radius) !important;
+  border: 1px solid var(--zp-line) !important;
+  background: var(--zp-bg-2) !important;
+  color: var(--zp-text) !important;
+  transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease) !important;
 }
 
 .coordinate-input:focus,
 .phone-input:focus,
 :deep(input:focus) {
   outline: none !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  border-color: var(--zp-accent) !important;
+  box-shadow: 0 0 0 3px var(--zp-accent-soft) !important;
 }
 
-.select-content {
+/* Radix Select dropdown — dark theme */
+.select-content,
+:deep([data-radix-popper-content-wrapper]) {
   width: var(--radix-select-trigger-width);
-  background: white !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 
-              0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 8px !important;
+  background: rgba(28, 28, 30, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid var(--zp-line) !important;
+  border-radius: var(--zp-radius) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
   z-index: 9999 !important;
   overflow: hidden !important;
+  color: var(--zp-text) !important;
 }
 
 .select-trigger {
   width: 100% !important;
-  min-height: 44px !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 0.95rem !important;
-  border-radius: 8px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: white !important;
+  min-height: 42px !important;
+  padding: 0.65rem 0.95rem !important;
+  font-size: 0.92rem !important;
+  font-family: var(--zp-font) !important;
+  border-radius: var(--zp-radius) !important;
+  border: 1px solid var(--zp-line) !important;
+  background: var(--zp-bg-2) !important;
+  color: var(--zp-text) !important;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
-  position: relative !important;
 }
 
 .select-item {
   width: 100% !important;
-  background: white !important;
-  position: relative !important;
+  background: transparent !important;
+  color: var(--zp-text) !important;
   padding: 8px 12px !important;
   user-select: none !important;
   outline: none !important;
   cursor: pointer !important;
-}
-
-:deep([data-radix-popper-content-wrapper]) {
-  width: var(--radix-select-trigger-width) !important;
-  background: white !important;
-  z-index: 9999 !important;
+  font-size: 0.9rem !important;
 }
 
 :deep(.select-viewport) {
-  background: white !important;
+  background: transparent !important;
   padding: 5px !important;
 }
 
-.select-item:hover {
-  background: #f8fafc !important;
-}
-
+.select-item:hover,
 :deep(.select-item[data-highlighted]) {
-  background: #f1f5f9 !important;
+  background: var(--zp-bg-3) !important;
 }
 
 :deep(.form-item) {
@@ -702,42 +708,49 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 :deep(label) {
-  font-weight: 600;
-  color: #334155;
+  font-weight: 500;
+  font-size: 0.78rem;
+  letter-spacing: var(--zp-track-loose);
+  text-transform: uppercase;
+  color: var(--zp-text-muted);
   font-size: 0.95rem;
 }
 
 .submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  padding: 1rem;
+  background: white;
+  color: black;
+  padding: 0.85rem;
   font-weight: 600;
-  font-size: 1.05rem;
-  border-radius: 10px;
+  font-size: 0.92rem;
+  border-radius: 999px;
   margin-top: 0.5rem;
-  transition: all 0.2s;
-  box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+  transition:
+    background var(--zp-fast) var(--zp-ease),
+    transform var(--zp-fast) var(--zp-spring),
+    opacity var(--zp-fast) var(--zp-ease);
+  border: 0;
+  font-family: var(--zp-font);
+  cursor: pointer;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+  background: rgba(255, 255, 255, 0.9);
 }
 
-.submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
+.submit-btn:active:not(:disabled) { transform: scale(0.99); }
+
+.submit-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .debug-info {
-  padding: 1rem;
-  background: #f1f5f9;
-  border-radius: 8px;
-  font-size: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--zp-bg-2);
+  border: 1px solid var(--zp-line);
+  border-radius: var(--zp-radius);
+  font-size: 0.82rem;
+  color: var(--zp-text-muted);
   margin-top: 1rem;
+  font-family: var(--zp-font-mono);
 }
 
 .debug-info p {
