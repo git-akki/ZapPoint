@@ -1,8 +1,9 @@
 <template> 
   <div class="auth-page">
     <div class="auth-card">
-      <img src="/zappoint-logo.png" alt="Zappoint Logo" class="logo" />
-      <h2 class="title">Register</h2>
+      <img src="/zappoint-logo.png" alt="ZapPoint" class="logo" />
+      <h2 class="title">Create your account</h2>
+      <p class="subtitle">Free forever. No card required.</p>
       <form @submit.prevent="handleRegister" class="auth-form">
         <input
           v-model="email"
@@ -23,13 +24,14 @@
             required
             title="Password must be at least 8 characters long and include at least one letter and one number"
           />
-          <span class="toggle-eye" @click="togglePassword">
+          <button type="button" class="toggle-eye" @click="togglePassword" :title="showPassword ? 'Hide password' : 'Show password'">
             {{ showPassword ? '🙈' : '👁️' }}
-          </span>
+          </button>
         </div>
+        <p class="auth-hint">8+ characters with at least one letter and one number.</p>
 
         <button type="submit" class="auth-button" :disabled="submitting">
-          {{ submitting ? 'Registering…' : 'Register' }}
+          {{ submitting ? 'Creating account…' : 'Create account' }}
         </button>
       </form>
       <p class="auth-switch">
@@ -76,13 +78,81 @@ const handleRegister = async () => {
 </script>
 
 <style scoped>
+/* Visual continuity with LoginView — same dark gradient + glassmorphic
+   card so toggling between Login ↔ Register feels like one flow. */
 .auth-page {
-  background: linear-gradient(to bottom right, #e6f5e6, #ccf3cc);
+  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  font-family: 'Poppins', sans-serif;
+  padding: 2rem 1.25rem;
+  background: var(--zp-bg-dark);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before,
+.auth-page::after {
+  content: '';
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.35;
+  pointer-events: none;
+}
+.auth-page::before {
+  background: radial-gradient(circle, #a855f7, transparent 60%);
+  top: -20%;
+  right: -20%;
+}
+.auth-page::after {
+  background: radial-gradient(circle, #06b6d4, transparent 60%);
+  bottom: -20%;
+  left: -20%;
+}
+
+.auth-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem 2rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--zp-radius-lg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  text-align: center;
+  color: var(--zp-text-on-dark);
+  animation: zp-rise 500ms var(--zp-ease-out) both;
+}
+
+.logo {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+}
+
+.title {
+  font-family: var(--zp-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.4rem;
+}
+
+.subtitle {
+  font-size: 0.9rem;
+  color: var(--zp-text-on-dark-soft);
+  margin: 0 0 1.75rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
 .password-wrapper {
@@ -93,76 +163,95 @@ const handleRegister = async () => {
 
 .password-wrapper .auth-input {
   flex: 1;
-  padding-right: 2.5rem; 
+  padding-right: 2.75rem;
 }
 
 .toggle-eye {
   position: absolute;
-  right: 1rem;
+  right: 0.85rem;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.05rem;
   user-select: none;
-  color: #555;
-}
-
-
-.auth-card {
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  box-shadow: 0 8px 20px rgba(0, 128, 0, 0.2);
-  text-align: center;
-  width: 100%;
-  max-width: 400px;
-}
-
-.logo {
-  width: 80px;
-  margin-bottom: 1rem;
-}
-
-.title {
-  margin-bottom: 1.5rem;
-  color: #1b5e20;
-}
-
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  color: var(--zp-text-on-dark-soft);
+  background: none;
+  border: 0;
+  padding: 0;
 }
 
 .auth-input {
-  padding: 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--zp-radius);
+  font-size: 0.95rem;
+  color: var(--zp-text-on-dark);
+  font-family: var(--zp-font-sans);
+  transition: border-color var(--zp-fast) var(--zp-ease), background var(--zp-fast) var(--zp-ease);
+}
+
+.auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--zp-violet);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.auth-hint {
+  font-size: 0.78rem;
+  color: var(--zp-text-on-dark-soft);
+  text-align: left;
+  margin: -0.25rem 0 0;
+  padding-left: 0.25rem;
 }
 
 .auth-button {
-  background: linear-gradient(to right, #ffcc00, #66bb6a);
-  color: white;
-  padding: 0.75rem;
-  border: none;
-  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.9rem 1.25rem;
+  background: white;
+  color: var(--zp-bg-dark);
+  border: 0;
+  border-radius: var(--zp-radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--zp-font-sans);
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
+  transition: transform var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
 }
 
-.auth-button:hover {
-  background: linear-gradient(to right, #fbc02d, #43a047);
+.auth-button:hover:not(:disabled) {
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08);
+}
+
+.auth-button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.auth-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .auth-switch {
-  margin-top: 1rem;
-  color: #2e7d32;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--zp-text-on-dark-soft);
 }
 
 .auth-switch a {
-  color: #2e7d32;
-  font-weight: bold;
+  color: var(--zp-text-on-dark);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--zp-fast) var(--zp-ease);
+}
+
+.auth-switch a:hover {
+  border-bottom-color: var(--zp-text-on-dark);
 }
 </style>

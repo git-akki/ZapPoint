@@ -1,43 +1,43 @@
 <template>
   <DashboardLayout>
     <div class="charger-list-content">
-      <!-- Header -->
-      <div class="dashboard-header">
-        <input 
+      <!-- Page header — user identity is now in the sidebar's user chip,
+           so this row only carries the page title + filters. -->
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Stations</h1>
+          <p class="page-sub">Browse, filter, and copy IDs for any registered charger.</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input
           v-model="searchQuery"
-          type="text" 
-          class="search-bar" 
-          placeholder="Search by name..." 
+          type="text"
+          class="search-bar"
+          placeholder="🔍 Search by name…"
         />
 
-        <!-- Filters -->
         <div class="filters">
-          <div class="filter-icon"></div>
           <select v-model="statusFilter" class="filter-select">
             <option value="">All Status</option>
             <option value="Active">Active</option>
             <option value="Inactive">Inactive</option>
           </select>
-          
+
           <select v-model="powerFilter" class="filter-select">
             <option value="">All Power</option>
             <option v-for="power in uniquePowerLevels" :value="power" :key="power">
               {{ power }}kW
             </option>
           </select>
-          
+
           <select v-model="connectorFilter" class="filter-select">
             <option value="">All Connectors</option>
             <option v-for="connector in uniqueConnectors" :value="connector" :key="connector">
               {{ connector }}
             </option>
           </select>
-        </div>
-
-        <div class="profile">
-          <span>{{ currentUserEmail }}</span>
-          <small>User</small>
-          <img src="/profile.png" alt="Profile" />
         </div>
       </div>
 
@@ -242,156 +242,146 @@ onMounted(fetchStations)
 </script>
 
 <style scoped>
-.loading {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
-  font-size: 1.1rem;
+/* Dashboard list — Vercel-inspired:
+ * - Page header with title + subtitle
+ * - Toolbar row with search + filters
+ * - Stat cards in a clean grid
+ * - List rows with subtle dividers and per-row copy chip */
+.charger-list-content {
+  max-width: 1100px;
 }
 
-.error {
-  text-align: center;
-  padding: 2rem;
-  color: #dc2626;
-  background: #fee;
-  border-radius: 8px;
-  margin: 1rem 0;
-}
-
-.dashboard-view {
-  display: flex;
-  font-family: 'Poppins', sans-serif;
-}
-
-.sidebar {
-  width: 250px;
-  background: #fff;
-  padding: 1.5rem;
-  border-right: 1px solid #eee;
-  transition: transform 0.3s ease-in-out;
-}
-
-.logo {
-  width: 140px;
-  margin-bottom: 2rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0.8rem 0;
-  color: #333;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.nav-item:hover {
-  color: #a855f7;
-}
-
-.nav-item.active {
-  color: #a855f7;
-  font-weight: 600;
-}
-
-.nav-item i {
-  margin-right: 0.8rem;
-  width: 20px;
-}
-
-.dashboard-content {
-  flex: 1;
-  padding: 2rem;
-  background: #f9f9fb;
-}
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.page-header {
   margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-family: var(--zp-font-display);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.25rem;
+  color: var(--zp-text);
+}
+
+.page-sub {
+  margin: 0;
+  color: var(--zp-text-soft);
+  font-size: 0.9rem;
+}
+
+.toolbar {
+  display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+  padding: 0.75rem;
+  background: var(--zp-bg);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius);
 }
 
 .search-bar {
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  width: 280px;
-  background: #f0f0ff;
+  flex: 1 1 280px;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-sm);
+  background: var(--zp-bg-soft);
+  color: var(--zp-text);
+  font-family: var(--zp-font-sans);
+  font-size: 0.9rem;
+  transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease);
+}
+
+.search-bar:focus {
+  outline: none;
+  border-color: var(--zp-violet);
+  box-shadow: 0 0 0 3px var(--zp-violet-100);
 }
 
 .filters {
   display: flex;
-  gap: 10px;
-  margin-left: 20px;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .filter-select {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  background: #f0f0ff;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-sm);
+  background: var(--zp-bg-soft);
+  color: var(--zp-text-soft);
+  font-family: var(--zp-font-sans);
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: border-color var(--zp-fast) var(--zp-ease);
 }
 
 .filter-select:hover {
-  background: #e5e5ff;
-}
-
-.profile {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.profile img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  border-color: var(--zp-text-muted);
+  color: var(--zp-text);
 }
 
 .summary-boxes {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
 .summary-box {
-  background: #f3f3ff;
-  padding: 1.2rem;
-  border-radius: 12px;
+  background: var(--zp-bg);
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius);
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: border-color var(--zp-fast) var(--zp-ease);
+}
+
+.summary-box:hover {
+  border-color: var(--zp-violet-300);
+}
+
+.summary-box i {
+  display: none; /* legacy icon classes — sidebar handles iconography now */
 }
 
 .summary-box h3 {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--zp-text-muted);
+  margin: 0;
 }
 
 .summary-box p {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #333;
+  font-variant-numeric: tabular-nums;
+  color: var(--zp-text);
+  margin: 0;
 }
 
 .station-list {
-  background: #fff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--zp-bg);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius);
+  overflow: hidden;
 }
 
 .station-list h3 {
-  margin-bottom: 1rem;
-  color: #333;
+  margin: 0;
+  padding: 1rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--zp-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--zp-border-soft);
+  background: var(--zp-bg-soft);
 }
 
 .station-list ul {
@@ -403,219 +393,137 @@ onMounted(fetchStations)
 .station-list li {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid #eee;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--zp-border-soft);
+  transition: background var(--zp-fast) var(--zp-ease);
+  animation: zp-rise 400ms var(--zp-ease-out) both;
 }
 
 .station-list li:last-child {
   border-bottom: none;
 }
 
+.station-list li:hover {
+  background: var(--zp-bg-soft);
+}
+
+.station-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .station-info p {
   font-weight: 600;
-  color: #333;
-  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--zp-text);
+  margin: 0 0 0.2rem;
 }
 
 .station-info small {
-  color: #999;
-  font-size: 0.8rem;
+  color: var(--zp-text-muted);
+  font-size: 0.78rem;
 }
 
 .station-details {
   display: flex;
-  gap: 15px;
-  margin-top: 5px;
+  gap: 1rem;
+  margin-top: 0.4rem;
   font-size: 0.8rem;
-  color: #666;
+  color: var(--zp-text-soft);
 }
 
 .station-id-row {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 0.6rem;
   flex-wrap: wrap;
 }
 
 .station-id {
-  font-family: 'SF Mono', Menlo, monospace;
-  font-size: 0.75rem;
-  background: #f1f5f9;
-  color: #475569;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  font-family: var(--zp-font-mono);
+  font-size: 0.7rem;
+  background: var(--zp-bg-mute);
+  color: var(--zp-text-soft);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--zp-radius-sm);
   word-break: break-all;
-  user-select: all; /* one-tap select on mobile if copy permission fails */
+  user-select: all;
 }
 
 .copy-btn {
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  color: #334155;
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  border: 1px solid var(--zp-border);
+  background: var(--zp-bg);
+  color: var(--zp-text-soft);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--zp-radius-sm);
+  font-size: 0.72rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  transition: background var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease), border-color var(--zp-fast) var(--zp-ease);
 }
 
 .copy-btn:hover {
-  background: #f3eaff;
-  color: #a855f7;
-  border-color: #d8b4fe;
+  background: var(--zp-violet-50);
+  color: var(--zp-violet-700);
+  border-color: var(--zp-violet-300);
 }
 
 .copy-btn.copied {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--zp-success-bg);
+  color: var(--zp-success);
   border-color: #86efac;
 }
 
-.status-active {
-  color: #16a34a;
+.status-active,
+.status-inactive {
   font-weight: 600;
-  background: #dcfce7;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.status-active {
+  color: var(--zp-success);
+  background: var(--zp-success-bg);
 }
 
 .status-inactive {
-  color: #dc2626;
-  font-weight: 600;
-  background: #fee2e2;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.85rem;
+  color: var(--zp-error);
+  background: var(--zp-error-bg);
 }
 
-.hamburger {
-  display: none;
-  flex-direction: column;
-  gap: 4px;
-  cursor: pointer;
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 100;
-  padding: 0.5rem;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.loading,
+.error {
+  text-align: center;
+  padding: 2rem;
+  border-radius: var(--zp-radius);
+  margin: 0 0 1rem;
 }
 
-.hamburger span {
-  width: 25px;
-  height: 3px;
-  background: #333;
-  border-radius: 2px;
-  transition: all 0.3s ease;
+.loading {
+  color: var(--zp-text-muted);
+  font-size: 0.95rem;
 }
 
-/* Responsive Styles */
-@media (max-width: 1024px) {
-  .dashboard-view {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid #eee;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .nav-item {
-    justify-content: center;
-  }
-
-  .dashboard-content {
-    padding: 1rem;
-  }
-
-  .summary-boxes {
-    flex-direction: column;
-  }
-
-  .filters {
-    flex-wrap: wrap;
-    margin-left: 0;
-  }
-}
-
-@media (max-width: 768px) {
-  .hamburger {
-    display: flex;
-  }
-
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 250px;
-    transform: translateX(-100%);
-    z-index: 99;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar:not(.collapsed) {
-    transform: translateX(0);
-  }
-
-  .dashboard-content {
-    margin-left: 0;
-    padding-top: 4rem;
-  }
+.error {
+  color: var(--zp-error);
+  background: var(--zp-error-bg);
+  font-size: 0.9rem;
 }
 
 @media (max-width: 600px) {
-  .search-bar {
-    width: 100%;
-  }
-
-  .filters {
-    flex-direction: column;
-    width: 100%;
-  }
-
-  .filter-select {
-    width: 100%;
-  }
-
-  .profile {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .summary-box {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .station-details {
-    flex-direction: column;
-    gap: 4px;
-  }
-
   .station-list li {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    gap: 0.5rem;
   }
-
-  .status-active, 
+  .status-active,
   .status-inactive {
     align-self: flex-start;
-  }
-
-  .dashboard-header {
-    align-items: flex-start;
+    margin-left: 0;
   }
 }
 </style>

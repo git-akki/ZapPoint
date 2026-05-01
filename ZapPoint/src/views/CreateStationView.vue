@@ -114,181 +114,126 @@ const createStation = async () => {
 
 
 <style scoped>
-.dashboard-view {
-  display: flex;
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  flex-direction: row;
-}
-
-
-.sidebar {
-  width: 250px;
-  background: #fff;
-  padding: 1.5rem;
-  border-right: 1px solid #eee;
-  transition: transform 0.3s ease-in-out;
-}
-
-.logo {
-  width: 140px;
-  margin-bottom: 2rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0.8rem 0;
-  color: #333;
-  text-decoration: none;
-}
-
-.nav-item.active {
-  color: #a855f7;
-}
-
-
-.dashboard-content {
-  flex: 1;
-  padding: 2rem;
-  background: #f9f9fb;
+/* Compact form pattern shared across Create / Update / Delete views.
+   Visual rules: clean white card, single-pixel borders, focus ring uses
+   the brand violet, submit button defaults to dark primary so the page
+   doesn't compete with the colored sidebar accent. */
+.dashboard-header {
+  margin-bottom: 1.5rem;
 }
 
 .dashboard-header h2 {
-  margin-bottom: 1rem;
+  font-family: var(--zp-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .station-form {
-  background: #fff;
+  background: var(--zp-bg);
   padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-lg);
+  max-width: 540px;
+  box-shadow: var(--zp-shadow-sm);
+  animation: zp-rise 400ms var(--zp-ease-out) both;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--zp-text-soft);
 }
 
 .form-group input,
 .form-group select {
-  width: 96%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f0f0ff;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius);
+  background: var(--zp-bg);
+  font-family: var(--zp-font-sans);
+  font-size: 0.95rem;
+  color: var(--zp-text);
+  transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--zp-violet);
+  box-shadow: 0 0 0 3px var(--zp-violet-100);
 }
 
 .submit-btn {
-  background: #a855f7;
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  margin-top: 0.5rem;
+  background: var(--zp-text);
+  color: var(--zp-text-on-dark);
+  padding: 0.85rem 1.25rem;
+  border: 0;
+  border-radius: var(--zp-radius);
   font-weight: 600;
+  font-size: 0.95rem;
+  font-family: var(--zp-font-sans);
   cursor: pointer;
   width: 100%;
+  transition: background var(--zp-fast) var(--zp-ease), transform var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #1f1f1f;
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .message {
   margin-top: 1rem;
-  color: green;
+  padding: 0.75rem 1rem;
+  background: var(--zp-success-bg);
+  color: var(--zp-success);
+  border-radius: var(--zp-radius);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .message-id {
   display: block;
-  margin-top: 0.5rem;
-  color: #4f46e5;
-  font-weight: bold;
-  background: #eef2ff;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  word-break: break-word;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--zp-bg);
+  color: var(--zp-text);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-sm);
+  font-family: var(--zp-font-mono);
+  font-size: 0.8rem;
+  word-break: break-all;
 }
 
 .error {
   margin-top: 1rem;
-  color: red;
+  padding: 0.75rem 1rem;
+  background: var(--zp-error-bg);
+  color: var(--zp-error);
+  border-radius: var(--zp-radius);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
-
-.hamburger-btn {
-  display: none;
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1100;
-  background: none;
-  color: #a855f7;
-  border: none;
-  font-size: 2rem;
-  cursor: pointer;
+@media (max-width: 640px) {
+  .station-form { padding: 1.5rem; }
 }
-
-
-@media (max-width: 1024px) {
-  .hamburger-btn {
-    display: block;
-  }
-
-  .dashboard-view {
-    flex-direction: column;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    background: white;
-    z-index: 1000;
-    transform: translateX(-100%);
-    padding-top: 4rem;
-    overflow-y: auto;
-  }
-
-  .sidebar.sidebar-open {
-    transform: translateX(0);
-  }
-
-  .dashboard-content {
-    margin-top: 4rem;
-    padding: 1rem;
-  }
-
-  .station-form {
-    padding: 1.5rem;
-  }
-
-  .dashboard-header h2 {
-    font-size: 1.4rem;
-    text-align: center;
-  }
-}
-
-@media (max-width: 480px) {
-  .station-form {
-    padding: 1rem;
-  }
-
-  .form-group input,
-  .form-group select {
-    padding: 0.6rem;
-  }
-
-  .submit-btn {
-    padding: 0.6rem 1rem;
-  }
-}
-
-
 </style>

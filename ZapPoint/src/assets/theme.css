@@ -1,0 +1,224 @@
+/* ZapPoint design system
+ * Inspired by:
+ *   - Tesla: dark canvases, big typographic hero, generous negative space
+ *   - Vercel: monochrome base, subtle dotted grids, soft gradient accents
+ *   - Next.js: minimalist hierarchy, smooth motion, geometric simplicity
+ *
+ * Tokens here are global CSS custom properties so component-scoped CSS can
+ * pick them up without coupling to Tailwind. Don't hardcode hex/spacing in
+ * views — read from these vars so a future palette tweak is one file.
+ */
+
+:root {
+  /* Brand */
+  --zp-violet: #a855f7;
+  --zp-violet-50: #f5f3ff;
+  --zp-violet-100: #ede9fe;
+  --zp-violet-300: #d8b4fe;
+  --zp-violet-500: #a855f7;
+  --zp-violet-600: #9333ea;
+  --zp-violet-700: #7e22ce;
+
+  --zp-electric: #10b981;     /* EV-charge green accent */
+  --zp-spark: #fb923c;        /* energy orange for CTAs */
+  --zp-cyan: #06b6d4;
+
+  /* Surfaces */
+  --zp-bg: #ffffff;
+  --zp-bg-soft: #f9fafb;
+  --zp-bg-mute: #f3f4f6;
+  --zp-bg-dark: #0a0a0a;
+  --zp-bg-dark-soft: #111111;
+  --zp-bg-dark-mute: #1a1a1a;
+
+  /* Borders */
+  --zp-border: #e5e7eb;
+  --zp-border-soft: #f1f5f9;
+  --zp-border-dark: #262626;
+
+  /* Text */
+  --zp-text: #0a0a0a;
+  --zp-text-soft: #525252;
+  --zp-text-muted: #737373;
+  --zp-text-on-dark: #fafafa;
+  --zp-text-on-dark-soft: #a3a3a3;
+
+  /* Status */
+  --zp-success: #16a34a;
+  --zp-success-bg: #dcfce7;
+  --zp-warn: #d97706;
+  --zp-warn-bg: #fef3c7;
+  --zp-error: #dc2626;
+  --zp-error-bg: #fee2e2;
+
+  /* Typography */
+  --zp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --zp-font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --zp-font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+  /* Motion */
+  --zp-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --zp-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --zp-fast: 150ms;
+  --zp-base: 250ms;
+  --zp-slow: 400ms;
+
+  /* Radii */
+  --zp-radius-sm: 6px;
+  --zp-radius: 10px;
+  --zp-radius-lg: 16px;
+  --zp-radius-xl: 24px;
+
+  /* Shadows */
+  --zp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --zp-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  --zp-shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --zp-shadow-glow: 0 0 0 1px rgba(168, 85, 247, 0.25), 0 8px 24px rgba(168, 85, 247, 0.18);
+
+  /* Gradient set used across hero + accents. Keep names semantic. */
+  --zp-gradient-brand: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #fb923c 100%);
+  --zp-gradient-electric: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+  --zp-gradient-night: radial-gradient(ellipse at top, #1f1f3a 0%, #0a0a0a 60%);
+}
+
+/* Global reset/baseline. Scoped Vue components extend these. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--zp-font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--zp-text);
+  background: var(--zp-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Vercel-style dotted grid background for accent panels.
+   Apply with `class="zp-dotted-bg"`. */
+.zp-dotted-bg {
+  background-image: radial-gradient(circle, var(--zp-border) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+}
+
+.zp-dotted-bg-dark {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Reusable button utilities. Use sparingly — most buttons should be styled
+   in their parent component, but these keep CTA consistency. */
+.zp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: var(--zp-radius);
+  font-family: var(--zp-font-sans);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    transform var(--zp-fast) var(--zp-ease),
+    background var(--zp-fast) var(--zp-ease),
+    box-shadow var(--zp-fast) var(--zp-ease),
+    border-color var(--zp-fast) var(--zp-ease);
+  text-decoration: none;
+  user-select: none;
+}
+
+.zp-btn:active {
+  transform: scale(0.98);
+}
+
+.zp-btn-primary {
+  background: var(--zp-text);
+  color: var(--zp-text-on-dark);
+}
+
+.zp-btn-primary:hover {
+  background: #1f1f1f;
+  box-shadow: var(--zp-shadow);
+}
+
+.zp-btn-accent {
+  background: var(--zp-gradient-brand);
+  color: white;
+  box-shadow: var(--zp-shadow);
+}
+
+.zp-btn-accent:hover {
+  box-shadow: var(--zp-shadow-glow);
+}
+
+.zp-btn-ghost {
+  background: transparent;
+  color: var(--zp-text);
+  border-color: var(--zp-border);
+}
+
+.zp-btn-ghost:hover {
+  background: var(--zp-bg-mute);
+  border-color: var(--zp-text-muted);
+}
+
+/* Card primitive. */
+.zp-card {
+  background: var(--zp-bg);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-lg);
+  padding: 1.5rem;
+  transition: border-color var(--zp-base) var(--zp-ease), transform var(--zp-base) var(--zp-ease);
+}
+
+.zp-card:hover {
+  border-color: var(--zp-text-muted);
+}
+
+/* Reveal-on-mount keyframe. Pair with `style="animation-delay: ..."` on
+   children for cascading entrance. */
+@keyframes zp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.zp-rise {
+  animation: zp-rise 600ms var(--zp-ease-out) both;
+}
+
+/* Vue route transitions. Used in App.vue's <transition name="zp-fade">. */
+.zp-fade-enter-active,
+.zp-fade-leave-active {
+  transition: opacity var(--zp-base) var(--zp-ease);
+}
+.zp-fade-enter-from,
+.zp-fade-leave-to {
+  opacity: 0;
+}
+
+/* Reduce motion preference — respect users who set it. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

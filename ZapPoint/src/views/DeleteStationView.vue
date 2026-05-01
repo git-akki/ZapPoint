@@ -58,139 +58,105 @@ const deleteStation = async () => {
 </script>
 
 <style scoped>
-.dashboard-view {
-  display: flex;
-  font-family: 'Poppins', sans-serif;
-  min-height: 100vh;
-  flex-direction: row;
-}
-
-
-.sidebar {
-  width: 250px;
-  background: #fff;
-  padding: 1.5rem;
-  border-right: 1px solid #eee;
-}
-
-.logo {
-  width: 140px;
-  margin-bottom: 2rem;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  padding: 0.8rem 0;
-  color: #333;
-  text-decoration: none;
-}
-
-.nav-item.active {
-  color: #a855f7;
-}
-
-
-.dashboard-content {
-  flex: 1;
-  padding: 2rem;
-  background: #f9f9fb;
+/* Delete-specific tone: red CTA so users feel the destructive action.
+   Otherwise the form pattern matches Create / Update for consistency. */
+.dashboard-header {
+  margin-bottom: 1.5rem;
 }
 
 .dashboard-header h2 {
-  margin-bottom: 1rem;
+  font-family: var(--zp-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0;
 }
 
 .station-form {
-  background: #fff;
+  background: var(--zp-bg);
   padding: 2rem;
-  border-radius: 12px;
-  max-width: 500px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius-lg);
+  max-width: 540px;
+  box-shadow: var(--zp-shadow-sm);
+  animation: zp-rise 400ms var(--zp-ease-out) both;
 }
 
 .form-group {
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
   font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--zp-text-soft);
 }
 
-.form-group input,
-.form-group select {
-  width: 96%;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f0f0ff;
+.form-group input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--zp-border);
+  border-radius: var(--zp-radius);
+  background: var(--zp-bg);
+  font-family: var(--zp-font-mono);
+  font-size: 0.9rem;
+  color: var(--zp-text);
+  transition: border-color var(--zp-fast) var(--zp-ease), box-shadow var(--zp-fast) var(--zp-ease);
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: var(--zp-error);
+  box-shadow: 0 0 0 3px var(--zp-error-bg);
 }
 
 .submit-btn {
-  background: #a855f7;
-  color: #fff;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  margin-top: 0.5rem;
+  background: var(--zp-error);
+  color: white;
+  padding: 0.85rem 1.25rem;
+  border: 0;
+  border-radius: var(--zp-radius);
   font-weight: 600;
+  font-size: 0.95rem;
+  font-family: var(--zp-font-sans);
   cursor: pointer;
+  width: 100%;
+  transition: background var(--zp-fast) var(--zp-ease), opacity var(--zp-fast) var(--zp-ease);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .message {
   margin-top: 1rem;
-  color: green;
+  padding: 0.75rem 1rem;
+  background: var(--zp-success-bg);
+  color: var(--zp-success);
+  border-radius: var(--zp-radius);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
 .error {
   margin-top: 1rem;
-  color: red;
+  padding: 0.75rem 1rem;
+  background: var(--zp-error-bg);
+  color: var(--zp-error);
+  border-radius: var(--zp-radius);
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
-.hamburger {
-  display: none;
-  font-size: 2rem;
-  background: none;
-  border: none;
-  color: #a855f7;
-  padding: 1rem;
-  cursor: pointer;
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
+@media (max-width: 640px) {
+  .station-form { padding: 1.5rem; }
 }
-
-
-.sidebar {
-  transition: transform 0.3s ease-in-out;
-}
-
-@media (max-width: 768px) {
-  .hamburger {
-    display: block;
-  }
-
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transform: translateX(-100%);
-    z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-  }
-
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .dashboard-content {
-    margin-top: 3rem;
-  }
-}
-
 </style>

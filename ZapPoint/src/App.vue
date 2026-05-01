@@ -1,94 +1,139 @@
 <script setup>
+// App shell. Owns:
+//  - the slim landing/auth header (only shown on Home, Login, Register)
+//  - global route transitions (`zp-fade` defined in theme.css)
+//
+// Authenticated pages own their full chrome via DashboardLayout, so we
+// suppress the public header for any route that isn't part of the
+// landing/auth flow.
 import { RouterView, useRoute, RouterLink } from 'vue-router'
 import { computed } from 'vue'
 
 const route = useRoute()
 
-
-// Router uses capitalized route names (`Login`, `Register`); the previous
-// lowercase check meant this header never rendered.
-const showHeader = computed(() => ['Login', 'Register'].includes(String(route.name)))
+const PUBLIC_ROUTES = ['Home', 'Login', 'Register']
+const showPublicHeader = computed(() => PUBLIC_ROUTES.includes(String(route.name)))
+const isAuthRoute = computed(() => ['Login', 'Register'].includes(String(route.name)))
+const isAuthed = computed(() => !!localStorage.getItem('authToken'))
 </script>
 
 <template>
   <div class="app-wrapper">
-    <header v-if="showHeader" class="app-header">
-      <img alt="ZapPoint Logo" class="logo" src="/zappoint-logo.png" width="100" />
-
-      <div class="nav-content">
-        <h1>Welcome to <span class="brand">ZapPoint</span></h1>
-
-        <nav>
-          <RouterLink to="/register">Register</RouterLink>
-          <RouterLink to="/login">Login</RouterLink>
-        </nav>
-      </div>
+    <header v-if="showPublicHeader" class="zp-header" :class="{ 'zp-header-tight': isAuthRoute }">
+      <RouterLink to="/" class="brand">
+        <img src="/zappoint-logo.png" alt="ZapPoint" class="brand-logo" />
+        <span class="brand-name">ZapPoint</span>
+      </RouterLink>
+      <nav class="zp-header-nav">
+        <template v-if="!isAuthed">
+          <RouterLink to="/login" class="nav-link">Login</RouterLink>
+          <RouterLink to="/register" class="nav-link nav-link-cta">Get started</RouterLink>
+        </template>
+        <RouterLink v-else to="/dashboard" class="nav-link nav-link-cta">Dashboard →</RouterLink>
+      </nav>
     </header>
 
     <main class="app-main">
-      <RouterView />
+      <RouterView v-slot="{ Component }">
+        <Transition name="zp-fade" mode="out-in">
+          <component :is="Component" />
+        </Transition>
+      </RouterView>
     </main>
   </div>
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-* {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 .app-wrapper {
-  background: linear-gradient(to bottom right, #f6fcff, #ecf9f1);
   min-height: 100vh;
-  color: #1f3b2d;
+  background: var(--zp-bg);
+  color: var(--zp-text);
 }
 
-.app-header {
+.zp-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.2rem 2rem;
-  background-color: #ffffff;
-  border-bottom: 1px solid #d0e5d9;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.03);
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--zp-border-soft);
 }
 
-.logo {
-  height: 64px;
-  width: auto;
-}
-
-.nav-content {
-  flex: 1;
-  text-align: right;
-}
-
-.nav-content h1 {
-  font-size: 1.8rem;
-  color: #1a1a1a;
-  margin-bottom: 0.5rem;
+/* Auth pages already center a card on a gradient — keep the header transparent
+   so the gradient bleeds through. */
+.zp-header-tight {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
 }
 
 .brand {
-  color: #7c3aed;
-}
-
-nav a {
-  margin-left: 1rem;
-  color: #1a1a1a;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
   text-decoration: none;
-  font-weight: 600;
-  padding: 0.4rem 0.8rem;
-  border-radius: 6px;
-  transition: background 0.3s ease;
+  color: var(--zp-text);
 }
 
-nav a:hover {
-  background-color: #ede9fe;
+.brand-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
 }
 
+.brand-name {
+  font-family: var(--zp-font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.zp-header-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: var(--zp-radius);
+  color: var(--zp-text-soft);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background var(--zp-fast) var(--zp-ease), color var(--zp-fast) var(--zp-ease);
+}
+
+.nav-link:hover {
+  color: var(--zp-text);
+  background: var(--zp-bg-mute);
+}
+
+.nav-link-cta {
+  background: var(--zp-text);
+  color: var(--zp-text-on-dark);
+}
+
+.nav-link-cta:hover {
+  background: #1f1f1f;
+  color: var(--zp-text-on-dark);
+}
+
+.app-main {
+  min-height: calc(100vh - 5rem);
+}
+
+@media (max-width: 640px) {
+  .zp-header {
+    padding: 0.75rem 1rem;
+  }
+  .brand-name {
+    display: none;
+  }
+}
 </style>
